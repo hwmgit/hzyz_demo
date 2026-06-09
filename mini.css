@@ -331,6 +331,77 @@ button {
   gap: 12px;
 }
 
+.video-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.video-card {
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.video-poster {
+  position: relative;
+}
+
+.video-poster img {
+  width: 100%;
+  height: 168px;
+  display: block;
+  object-fit: cover;
+}
+
+.video-badge,
+.video-play {
+  position: absolute;
+}
+
+.video-badge {
+  right: 12px;
+  bottom: 12px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 9px;
+  color: #fff;
+  background: rgba(36, 29, 24, 0.72);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.video-play {
+  left: 12px;
+  bottom: 12px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(159, 31, 36, 0.88);
+  font-size: 14px;
+}
+
+.video-body {
+  padding: 12px 14px 14px;
+}
+
+.video-body strong {
+  display: block;
+  font-size: 15px;
+}
+
+.video-body span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .case-card,
 .product-card {
   overflow: hidden;
@@ -501,6 +572,43 @@ button {
   gap: 12px;
 }
 
+.video-stack {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.video-player-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffdf8;
+}
+
+.detail-video {
+  width: 100%;
+  height: 220px;
+  display: block;
+  object-fit: cover;
+  background: #000;
+}
+
+.video-meta {
+  padding: 12px;
+}
+
+.video-meta strong {
+  display: block;
+  font-size: 14px;
+}
+
+.video-meta span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .notice-card ul,
 .support-card ul {
   margin: 10px 0 0;
@@ -569,11 +677,11 @@ button {
 }
 
 .service-hero-cashier {
-  background-image: url("./资料/收银台03.jpg");
+  background-image: url("./resource/收银台03.jpg");
 }
 
 .service-hero-help {
-  background-image: url("./资料/上门服务工单.jpg");
+  background-image: url("./resource/上门服务工单.jpg");
 }
 
 .service-hero h1 {

@@ -1,6 +1,6 @@
 const heroSlides = [
   {
-    image: "./资料/收银台01.jpg",
+    image: "./resource/收银台01.jpg",
     eyebrow: "收银系统 / SaaS 方案",
     title: "把真实门店部署案例讲清楚",
     desc: "客户先看到案例价值，再看到设备、服务和落地成果。",
@@ -10,7 +10,7 @@ const heroSlides = [
     secondaryAction: "setView('services')"
   },
   {
-    image: "./资料/称重&小票机.jpg",
+    image: "./resource/称重&小票机.jpg",
     eyebrow: "智能硬件 / 联调方案",
     title: "收银、小票、称重一体联动",
     desc: "用真实现场素材展示硬件方案，而不是停留在抽象说明。",
@@ -20,7 +20,7 @@ const heroSlides = [
     secondaryAction: "setView('help')"
   },
   {
-    image: "./资料/上门服务工单.jpg",
+    image: "./resource/上门服务工单.jpg",
     eyebrow: "交付服务 / 工单证明",
     title: "把上门安装与培训也变成信任资产",
     desc: "不仅展示产品，也展示软剑熊的实施和售后能力。",
@@ -45,8 +45,11 @@ const cases = [
     open: "含安装培训",
     address: "温州浙鼎荟门店",
     phone: "400-875-0577",
-    image: "./资料/收银台01.jpg",
-    hero: "./资料/收银台01.jpg",
+    image: "./resource/收银台01.jpg",
+    hero: "./resource/收银台01.jpg",
+    videos: [
+      { title: "门店部署现场总览", duration: "00:04", poster: "./resource/收银台01.jpg", src: "./videos/case-zhedinghui.mp4" }
+    ],
     tags: ["POS", "打印", "培训"],
     highlights: ["PC 电脑 + 80 小票机 + 扫码盒", "现场部署和员工培训", "收银链路快速闭环"],
     tickets: [
@@ -68,8 +71,11 @@ const cases = [
     open: "支持扩展小程序",
     address: "茶饮客户门店场景",
     phone: "400-875-0577",
-    image: "./资料/称重&小票机.jpg",
-    hero: "./资料/称重&小票机.jpg",
+    image: "./resource/称重&小票机.jpg",
+    hero: "./resource/称重&小票机.jpg",
+    videos: [
+      { title: "称重与小票联调讲解", duration: "00:04", poster: "./resource/称重&小票机.jpg", src: "./videos/case-tea-device.mp4" }
+    ],
     tags: ["称重", "联调", "设备组合"],
     highlights: ["真实设备照片", "收银台联动说明", "可扩展到小程序商城"],
     tickets: [
@@ -91,8 +97,11 @@ const cases = [
     open: "支持案例沉淀",
     address: "客户自营小程序入口",
     phone: "400-875-0577",
-    image: "./资料/环境01.jpg",
-    hero: "./资料/环境01.jpg",
+    image: "./resource/环境01.jpg",
+    hero: "./resource/环境01.jpg",
+    videos: [
+      { title: "小程序商城内容展示", duration: "00:04", poster: "./resource/环境01.jpg", src: "./videos/case-mini-shop.mp4" }
+    ],
     tags: ["小程序", "会员", "内容展示"],
     highlights: ["案例 + 公司介绍 + 咨询", "适合分享给潜在客户", "后台可持续维护内容"],
     tickets: [
@@ -114,8 +123,11 @@ const cases = [
     open: "适合企业客户",
     address: "门店现场上门服务",
     phone: "400-875-0577",
-    image: "./资料/上门服务工单.jpg",
-    hero: "./资料/上门服务工单.jpg",
+    image: "./resource/上门服务工单.jpg",
+    hero: "./resource/上门服务工单.jpg",
+    videos: [
+      { title: "服务工单与交付说明", duration: "00:04", poster: "./resource/上门服务工单.jpg", src: "./videos/case-service-order.mp4" }
+    ],
     tags: ["工单", "上门", "培训"],
     highlights: ["标准工单模板", "安装签收记录", "售后能力可视化"],
     tickets: [
@@ -133,25 +145,25 @@ const services = [
     id: "cashier",
     title: "收银系统",
     desc: "覆盖前台收银、打印出单、扫码与门店收款链路。",
-    image: "./资料/收银台02.jpg"
+    image: "./resource/收银台02.jpg"
   },
   {
     id: "hardware",
     title: "智能硬件",
     desc: "小票机、称重设备、扫码设备与收银台组合联调。",
-    image: "./资料/小票机.jpg"
+    image: "./resource/小票机.jpg"
   },
   {
     id: "mini",
     title: "小程序商城",
     desc: "适合作为客户展示、会员触达与咨询转化入口。",
-    image: "./资料/环境02.jpg"
+    image: "./resource/环境02.jpg"
   },
   {
     id: "onsite",
     title: "上门服务",
     desc: "安装、培训、签收和售后回访都可纳入标准交付流程。",
-    image: "./资料/上门服务工单.jpg"
+    image: "./resource/上门服务工单.jpg"
   }
 ];
 
@@ -292,6 +304,7 @@ function renderSectionHead(title, action = "") {
 
 function renderHome() {
   const featured = cases.slice(0, 2);
+  const videoHighlights = cases.filter((item) => item.videos && item.videos.length).slice(0, 2);
   app.innerHTML = `
     ${homeHeroMarkup()}
     <div class="weather-strip">
@@ -326,6 +339,25 @@ function renderHome() {
               </div>
               <p>${item.subtitle}</p>
               <div class="tag-row">${item.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+
+    <section class="section">
+      ${renderSectionHead("视频速览")}
+      <div class="video-grid">
+        ${videoHighlights.map((item) => `
+          <article class="video-card" onclick="setCase('${item.id}')">
+            <div class="video-poster">
+              <img src="${item.videos[0].poster}" alt="${item.videos[0].title}">
+              <span class="video-badge">${item.videos[0].duration}</span>
+              <span class="video-play">▶</span>
+            </div>
+            <div class="video-body">
+              <strong>${item.videos[0].title}</strong>
+              <span>${item.title}</span>
             </div>
           </article>
         `).join("")}
@@ -403,6 +435,23 @@ function renderDetail() {
         <h3>交付成果</h3>
         <p>${item.result}</p>
         <div class="tag-row">${item.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+      </article>
+      <article class="ticket-card">
+        <h3>案例视频</h3>
+        <p>用于展示部署现场、设备联调和服务说明，方便客户快速理解实际落地效果。</p>
+        <div class="video-stack">
+          ${(item.videos || []).map((video) => `
+            <div class="video-player-card">
+              <video class="detail-video" controls preload="metadata" poster="${video.poster}">
+                <source src="${video.src}" type="video/mp4">
+              </video>
+              <div class="video-meta">
+                <strong>${video.title}</strong>
+                <span>时长 ${video.duration}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
       </article>
       <article class="ticket-card">
         <h3>方案组合</h3>

@@ -12,7 +12,10 @@ const adminCases = [
     title: "浙鼎荟门店收银系统上线",
     category: "餐饮",
     status: "已发布",
-    cover: "./资料/收银台01.jpg",
+    cover: "./resource/收银台01.jpg",
+    videos: [
+      { id: "v1", title: "门店部署现场总览", duration: "00:04", src: "./videos/case-zhedinghui.mp4", poster: "./resource/收银台01.jpg" }
+    ],
     summary: "PC 收银、小票机、扫码盒与培训交付。",
     location: "温州浙鼎荟门店",
     contact: "400-875-0577",
@@ -25,7 +28,10 @@ const adminCases = [
     title: "茶饮门店称重与小票联调案例",
     category: "茶饮",
     status: "草稿",
-    cover: "./资料/称重&小票机.jpg",
+    cover: "./resource/称重&小票机.jpg",
+    videos: [
+      { id: "v2", title: "称重与小票联调讲解", duration: "00:04", src: "./videos/case-tea-device.mp4", poster: "./resource/称重&小票机.jpg" }
+    ],
     summary: "称重设备、小票机与收银台组合展示。",
     location: "茶饮客户门店场景",
     contact: "400-875-0577",
@@ -38,7 +44,10 @@ const adminCases = [
     title: "小程序商城与会员营销展示方案",
     category: "零售",
     status: "已发布",
-    cover: "./资料/环境01.jpg",
+    cover: "./resource/环境01.jpg",
+    videos: [
+      { id: "v3", title: "小程序商城内容展示", duration: "00:04", src: "./videos/case-mini-shop.mp4", poster: "./resource/环境01.jpg" }
+    ],
     summary: "案例展示、会员触达与咨询表单一体化。",
     location: "客户自营小程序入口",
     contact: "400-875-0577",
@@ -51,7 +60,10 @@ const adminCases = [
     title: "上门安装与培训服务闭环",
     category: "服务",
     status: "待完善",
-    cover: "./资料/上门服务工单.jpg",
+    cover: "./resource/上门服务工单.jpg",
+    videos: [
+      { id: "v4", title: "服务工单与交付说明", duration: "00:04", src: "./videos/case-service-order.mp4", poster: "./resource/上门服务工单.jpg" }
+    ],
     summary: "把服务工单转成售前可展示内容。",
     location: "门店现场上门服务",
     contact: "400-875-0577",
@@ -62,12 +74,16 @@ const adminCases = [
 ];
 
 const adminAssets = [
-  { id: "a1", name: "收银台01", type: "门店部署", src: "./资料/收银台01.jpg", source: "客户资料" },
-  { id: "a2", name: "收银台02", type: "门店部署", src: "./资料/收银台02.jpg", source: "客户资料" },
-  { id: "a3", name: "称重&小票机", type: "智能硬件", src: "./资料/称重&小票机.jpg", source: "客户资料" },
-  { id: "a4", name: "上门服务工单", type: "服务记录", src: "./资料/上门服务工单.jpg", source: "客户资料" },
-  { id: "a5", name: "环境01", type: "门店环境", src: "./资料/环境01.jpg", source: "客户资料" },
-  { id: "a6", name: "小票机", type: "智能硬件", src: "./资料/小票机.jpg", source: "客户资料" }
+  { id: "a1", kind: "image", name: "收银台01", type: "门店部署", src: "./resource/收银台01.jpg", source: "客户资料" },
+  { id: "a2", kind: "image", name: "收银台02", type: "门店部署", src: "./resource/收银台02.jpg", source: "客户资料" },
+  { id: "a3", kind: "image", name: "称重&小票机", type: "智能硬件", src: "./resource/称重&小票机.jpg", source: "客户资料" },
+  { id: "a4", kind: "image", name: "上门服务工单", type: "服务记录", src: "./resource/上门服务工单.jpg", source: "客户资料" },
+  { id: "a5", kind: "image", name: "环境01", type: "门店环境", src: "./resource/环境01.jpg", source: "客户资料" },
+  { id: "a6", kind: "image", name: "小票机", type: "智能硬件", src: "./resource/小票机.jpg", source: "客户资料" },
+  { id: "v1", kind: "video", name: "门店部署现场总览", type: "案例视频", src: "./videos/case-zhedinghui.mp4", poster: "./resource/收银台01.jpg", source: "系统生成" },
+  { id: "v2", kind: "video", name: "称重与小票联调讲解", type: "案例视频", src: "./videos/case-tea-device.mp4", poster: "./resource/称重&小票机.jpg", source: "系统生成" },
+  { id: "v3", kind: "video", name: "小程序商城内容展示", type: "案例视频", src: "./videos/case-mini-shop.mp4", poster: "./resource/环境01.jpg", source: "系统生成" },
+  { id: "v4", kind: "video", name: "服务工单与交付说明", type: "案例视频", src: "./videos/case-service-order.mp4", poster: "./resource/上门服务工单.jpg", source: "系统生成" }
 ];
 
 const searchInput = document.querySelector("#searchInput");
@@ -82,7 +98,7 @@ const fileCount = document.querySelector("#fileCount");
 const statCases = document.querySelector("#statCases");
 const statPublished = document.querySelector("#statPublished");
 const statAssets = document.querySelector("#statAssets");
-const statDrafts = document.querySelector("#statDrafts");
+const statVideos = document.querySelector("#statVideos");
 
 function showToast(message) {
   toast.textContent = message;
@@ -112,7 +128,7 @@ function updateStats() {
   statCases.textContent = `${adminCases.length}`;
   statPublished.textContent = `${adminCases.filter((item) => item.status === "已发布").length}`;
   statAssets.textContent = `${adminAssets.length}`;
-  statDrafts.textContent = `${adminCases.filter((item) => item.status !== "已发布").length}`;
+  statVideos.textContent = `${adminAssets.filter((item) => item.kind === "video").length}`;
 }
 
 function renderCaseList() {
@@ -190,6 +206,22 @@ function renderEditor() {
             <input id="caseTags" class="input" value="${item.tags.join(" / ")}">
           </div>
         </div>
+        <div class="field full">
+          <label>已绑定视频</label>
+          <div class="asset-grid">
+            ${(item.videos || []).map((video) => `
+              <article class="asset-card">
+                <video controls preload="metadata" poster="${video.poster}">
+                  <source src="${video.src}" type="video/mp4">
+                </video>
+                <div>
+                  <strong>${video.title}</strong>
+                  <span>时长 ${video.duration}</span>
+                </div>
+              </article>
+            `).join("") || `<article class="asset-card"><div><strong>暂无视频</strong><span>可从下方资料库上传视频并绑定到当前案例。</span></div></article>`}
+          </div>
+        </div>
         <div class="editor-actions">
           <button class="primary-btn" id="saveCaseBtn">保存修改</button>
           <button class="ghost-btn" id="publishCaseBtn">${item.status === "已发布" ? "转为草稿" : "发布案例"}</button>
@@ -207,13 +239,18 @@ function renderEditor() {
 function renderAssets() {
   assetGrid.innerHTML = adminAssets.map((asset) => `
     <article class="asset-card">
-      <img src="${asset.src}" alt="${asset.name}">
+      ${asset.kind === "video"
+        ? `<video controls preload="metadata" poster="${asset.poster || currentCase().cover}"><source src="${asset.src}" type="video/mp4"></video>`
+        : `<img src="${asset.src}" alt="${asset.name}">`
+      }
       <div>
         <strong>${asset.name}</strong>
         <span>${asset.type} · ${asset.source}</span>
         <div class="action-row">
-          <button class="small-btn" data-asset-use="${asset.id}">设为封面</button>
-          <button class="small-btn" data-asset-append="${asset.id}">加入案例</button>
+          ${asset.kind === "video"
+            ? `<button class="small-btn" data-asset-video="${asset.id}">绑定视频</button>`
+            : `<button class="small-btn" data-asset-use="${asset.id}">设为封面</button><button class="small-btn" data-asset-append="${asset.id}">加入案例</button>`
+          }
         </div>
       </div>
     </article>
@@ -260,6 +297,7 @@ function bindAssetEvents() {
   assetGrid.addEventListener("click", (event) => {
     const useBtn = event.target.closest("[data-asset-use]");
     const appendBtn = event.target.closest("[data-asset-append]");
+    const videoBtn = event.target.closest("[data-asset-video]");
     if (useBtn) {
       const asset = adminAssets.find((item) => item.id === useBtn.dataset.assetUse);
       if (!asset) return;
@@ -272,6 +310,24 @@ function bindAssetEvents() {
       const asset = adminAssets.find((item) => item.id === appendBtn.dataset.assetAppend);
       if (!asset) return;
       showToast(`已将 ${asset.name} 加入案例资料`);
+    }
+    if (videoBtn) {
+      const asset = adminAssets.find((item) => item.id === videoBtn.dataset.assetVideo);
+      if (!asset) return;
+      const item = currentCase();
+      item.videos = item.videos || [];
+      const exists = item.videos.some((video) => video.src === asset.src);
+      if (!exists) {
+        item.videos.unshift({
+          id: asset.id,
+          title: asset.name,
+          duration: "本地资料",
+          src: asset.src,
+          poster: asset.poster || item.cover
+        });
+      }
+      renderEditor();
+      showToast(`已将 ${asset.name} 绑定到当前案例`);
     }
   });
 }
@@ -298,12 +354,14 @@ function bindUpload() {
     const files = [...uploadInput.files];
     if (!files.length) return;
     for (const file of files) {
-      const src = await fileToDataUrl(file);
+      const src = await fileToPreviewUrl(file);
       adminAssets.unshift({
         id: `upload-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
         name: file.name,
-        type: "本地上传",
+        kind: file.type.startsWith("video/") ? "video" : "image",
+        type: file.type.startsWith("video/") ? "视频资料" : "图片资料",
         src,
+        poster: currentCase().cover,
         source: "本次上传"
       });
     }
@@ -315,13 +373,8 @@ function bindUpload() {
   });
 }
 
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+function fileToPreviewUrl(file) {
+  return Promise.resolve(URL.createObjectURL(file));
 }
 
 function init() {

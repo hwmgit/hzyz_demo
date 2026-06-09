@@ -413,6 +413,14 @@ textarea {
   object-fit: cover;
 }
 
+.asset-card video {
+  width: 100%;
+  height: 160px;
+  display: block;
+  object-fit: cover;
+  background: #000;
+}
+
 .asset-card div {
   padding: 12px;
 }
