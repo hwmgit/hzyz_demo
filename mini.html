@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>软剑熊案例展示小程序端</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239f1f24'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='22' font-family='Arial' font-weight='700' fill='white'%3ERX%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="mini.css">
+</head>
+<body>
+  <main class="phone-shell">
+    <header class="mini-header">
+      <button class="icon-btn" id="backBtn" aria-label="返回">‹</button>
+      <strong id="pageTitle">软剑熊案例中心</strong>
+      <div class="wechat-capsule" aria-label="微信胶囊按钮">
+        <span>•••</span><i></i><span>◎</span>
+      </div>
+    </header>
+
+    <section id="toast" class="toast" hidden></section>
+    <section id="app" class="app-view"></section>
+
+    <nav class="tabbar" aria-label="底部导航">
+      <button data-tab="home" class="active">
+        <span class="tab-icon">首</span>
+        首页
+      </button>
+      <button data-tab="cases">
+        <span class="tab-icon">案</span>
+        案例
+      </button>
+      <button data-tab="services">
+        <span class="tab-icon">服</span>
+        服务
+      </button>
+      <button data-tab="mine">
+        <span class="tab-icon">我</span>
+        我的
+      </button>
+    </nav>
+  </main>
+
+  <script src="mini.js"></script>
+</body>
+</html>

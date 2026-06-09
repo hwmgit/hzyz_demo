@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>软剑熊案例展示管理后台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239f1f24'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-size='22' font-family='Arial' font-weight='700' fill='white'%3ERX%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-topbar">
+      <div class="brand">
+        <div class="brand-mark">RX</div>
+        <div>
+          <strong>软剑熊案例展示管理后台</strong>
+          <span>案例管理、资料维护、封面更新与内容编辑</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="ghost-btn" href="./index.html">返回首页</a>
+        <a class="ghost-btn" href="./mini.html">查看客户展示端</a>
+        <button class="primary-btn" type="button">发布更新</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>统一维护案例、资料和客户展示内容</h1>
+        <p>管理后台面向内部运营与销售支持人员，负责查看案例状态、修改案例内容、上传资料图片，并将最新内容同步到客户展示端。</p>
+        <div class="cta-row">
+          <button class="primary-btn" type="button">新建案例</button>
+          <button class="ghost-btn" type="button">导出案例清单</button>
+        </div>
+      </div>
+      <div class="hero-kpis">
+        <div class="kpi"><span>案例总数</span><strong id="statCases">0</strong></div>
+        <div class="kpi"><span>已发布案例</span><strong id="statPublished">0</strong></div>
+        <div class="kpi"><span>资料总数</span><strong id="statAssets">0</strong></div>
+        <div class="kpi"><span>待处理内容</span><strong id="statDrafts">0</strong></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>案例列表</h2>
+            <p>支持查看案例状态、快速定位要修改的内容，并切换到右侧编辑区。</p>
+          </div>
+        </div>
+        <div class="filters">
+          <input id="searchInput" class="input" placeholder="搜索案例标题、分类或标签">
+          <select id="categoryFilter">
+            <option>全部</option>
+            <option>餐饮</option>
+            <option>茶饮</option>
+            <option>零售</option>
+            <option>服务</option>
+          </select>
+          <select id="statusFilter">
+            <option>全部</option>
+            <option>已发布</option>
+            <option>草稿</option>
+            <option>待完善</option>
+          </select>
+        </div>
+        <div id="caseList" class="case-list"></div>
+      </section>
+
+      <section>
+        <div id="editorHost"></div>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>资料库</h3>
+              <p>支持查看已有资料，并上传新的门店现场图、设备图或服务记录。</p>
+            </div>
+            <div class="asset-toolbar">
+              <span id="fileCount">已接入客户资料</span>
+              <label class="file-label">
+                上传资料
+                <input id="uploadInput" type="file" accept="image/*" multiple>
+              </label>
+            </div>
+          </div>
+          <div id="assetGrid" class="asset-grid"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="admin.js"></script>
+</body>
+</html>
