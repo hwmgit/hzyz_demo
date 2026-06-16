@@ -461,6 +461,73 @@ textarea {
   display: block;
 }
 
+.config-panel {
+  margin-top: 18px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.config-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel-strong);
+  padding: 14px;
+}
+
+.config-card h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.config-list {
+  display: grid;
+  gap: 10px;
+}
+
+.config-row {
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 251, 245, 0.78);
+  border: 1px solid rgba(91, 69, 49, 0.08);
+}
+
+.config-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.config-row-head strong {
+  font-size: 13px;
+}
+
+.config-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.config-fields .full {
+  grid-column: 1 / -1;
+}
+
+.config-fields input,
+.config-fields select {
+  min-height: 36px;
+}
+
+.config-note {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 @media (max-width: 1120px) {
   .hero,
   .workspace {
@@ -488,7 +555,9 @@ textarea {
   .filters,
   .editor-grid,
   .asset-grid,
-  .hero-kpis {
+  .hero-kpis,
+  .config-grid,
+  .config-fields {
     grid-template-columns: 1fr;
   }
 }

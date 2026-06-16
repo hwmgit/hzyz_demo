@@ -1,21 +1,21 @@
 const heroSlides = [
   {
     image: "./resource/收银台01.jpg",
-    eyebrow: "收银系统 / SaaS 方案",
-    title: "把真实门店部署案例讲清楚",
-    desc: "客户先看到案例价值，再看到设备、服务和落地成果。",
-    primary: "查看案例",
-    secondary: "服务能力",
+    eyebrow: "RX 软剑熊",
+    title: "企业级 SAAS 数字一体化解决方案专家",
+    desc: "系统·配套·平价超市",
+    primary: "餐饮案例",
+    secondary: "零售案例",
     primaryAction: "setView('cases')",
     secondaryAction: "setView('services')"
   },
   {
     image: "./resource/称重&小票机.jpg",
-    eyebrow: "智能硬件 / 联调方案",
+    eyebrow: "门店现场 / 联调方案",
     title: "收银、小票、称重一体联动",
     desc: "用真实现场素材展示硬件方案，而不是停留在抽象说明。",
-    primary: "硬件方案",
-    secondary: "咨询顾问",
+    primary: "收银套餐",
+    secondary: "商务合作",
     primaryAction: "setView('detail', { caseId: 'tea-device' })",
     secondaryAction: "setView('help')"
   },
@@ -24,7 +24,7 @@ const heroSlides = [
     eyebrow: "交付服务 / 工单证明",
     title: "把上门安装与培训也变成信任资产",
     desc: "不仅展示产品，也展示软剑熊的实施和售后能力。",
-    primary: "查看服务",
+    primary: "主营业务",
     secondary: "联系咨询",
     primaryAction: "setView('services')",
     secondaryAction: "setView('help')"
@@ -32,6 +32,85 @@ const heroSlides = [
 ];
 
 const caseCategories = ["全部", "餐饮", "茶饮", "零售", "服务"];
+
+const MINI_CONFIG_KEY = "ysb_case_show_mini_config_v1";
+
+const defaultMiniConfig = {
+  quickModules: [
+    { id: "company", label: "公司介绍", iconImage: "./resource/ui-icons/company.svg", view: "company", payload: {} },
+    { id: "scope", label: "业务范围", iconImage: "./resource/ui-icons/scope.svg", view: "scope", payload: { scopeCategory: "全部" } },
+    { id: "cashier", label: "收银套餐", iconImage: "./resource/ui-icons/cashier.svg", view: "detail", payload: { caseId: "zhedinghui" } },
+    { id: "cooperate", label: "商务合作", iconImage: "./resource/ui-icons/cooperate.svg", view: "help", payload: {} }
+  ],
+  caseTiles: [
+    { id: "case-restaurant", label: "餐饮案例", category: "餐饮", iconImage: "./resource/收银台01.jpg", view: "cases", payload: { category: "餐饮" } },
+    { id: "case-retail", label: "零售案例", category: "零售", iconImage: "./resource/环境01.jpg", view: "cases", payload: { category: "零售" } },
+    { id: "case-entertainment", label: "休娱案例", category: "服务", iconImage: "./resource/上门服务工单.jpg", view: "cases", payload: { category: "服务" } },
+    { id: "case-more", label: "更多案例", category: "全部", iconImage: "./resource/收银台03.jpg", view: "cases", payload: { category: "全部" } }
+  ],
+  businessItems: [
+    { id: "broadband", label: "移动宽带", iconImage: "./resource/环境02.jpg", view: "scope", payload: { scopeCategory: "移动宽带" } },
+    { id: "monitor", label: "监控网络", iconImage: "./resource/收银台02.jpg", view: "scope", payload: { scopeCategory: "监控网络" } },
+    { id: "nav", label: "门店导航", iconImage: "./resource/环境01.jpg", view: "scope", payload: { scopeCategory: "门店导航" } },
+    { id: "cashier", label: "收银系统", iconImage: "./resource/收银台01.jpg", view: "scope", payload: { scopeCategory: "收银系统" } },
+    { id: "hardware", label: "配套硬件", iconImage: "./resource/小票机.jpg", view: "scope", payload: { scopeCategory: "配套硬件" } },
+    { id: "poster", label: "海报设计", iconImage: "./resource/上门服务工单.jpg", view: "scope", payload: { scopeCategory: "海报设计" } }
+  ],
+  tabBar: [
+    { tab: "home", label: "首页", iconImage: "./resource/ui-icons/home.svg" },
+    { tab: "cases", label: "案例", iconImage: "./resource/ui-icons/case.svg" },
+    { tab: "services", label: "服务", iconImage: "./resource/ui-icons/service.svg" },
+    { tab: "mine", label: "我的", iconImage: "./resource/ui-icons/mine.svg" }
+  ]
+};
+
+function cloneConfig(source) {
+  return JSON.parse(JSON.stringify(source));
+}
+
+function normalizeArray(source, fallback) {
+  return Array.isArray(source) && source.length ? source : cloneConfig(fallback);
+}
+
+function mergeByKey(sourceList, fallbackList, key) {
+  const sourceMap = new Map((Array.isArray(sourceList) ? sourceList : []).map((item) => [item[key], item]));
+  return fallbackList.map((fallbackItem) => {
+    const current = sourceMap.get(fallbackItem[key]) || {};
+    return {
+      ...cloneConfig(fallbackItem),
+      ...current,
+      iconImage: current.iconImage !== undefined ? current.iconImage : (fallbackItem.iconImage || ""),
+      payload: {
+        ...cloneConfig(fallbackItem.payload || {}),
+        ...cloneConfig(current.payload || {})
+      }
+    };
+  });
+}
+
+function loadMiniConfig() {
+  try {
+    const raw = localStorage.getItem(MINI_CONFIG_KEY);
+    if (!raw) return cloneConfig(defaultMiniConfig);
+    const parsed = JSON.parse(raw);
+    const merged = {
+      quickModules: mergeByKey(normalizeArray(parsed.quickModules, defaultMiniConfig.quickModules), defaultMiniConfig.quickModules, "id"),
+      caseTiles: mergeByKey(normalizeArray(parsed.caseTiles, defaultMiniConfig.caseTiles), defaultMiniConfig.caseTiles, "id"),
+      businessItems: mergeByKey(normalizeArray(parsed.businessItems, defaultMiniConfig.businessItems), defaultMiniConfig.businessItems, "id"),
+      tabBar: mergeByKey(normalizeArray(parsed.tabBar, defaultMiniConfig.tabBar), defaultMiniConfig.tabBar, "tab")
+    };
+    if (JSON.stringify(parsed) !== JSON.stringify(merged)) {
+      localStorage.setItem(MINI_CONFIG_KEY, JSON.stringify(merged));
+    }
+    return merged;
+  } catch {
+    return cloneConfig(defaultMiniConfig);
+  }
+}
+
+function saveMiniConfig(nextConfig) {
+  localStorage.setItem(MINI_CONFIG_KEY, JSON.stringify(nextConfig));
+}
 
 const cases = [
   {
@@ -199,6 +278,7 @@ const state = {
   view: "home",
   caseId: "zhedinghui",
   category: "全部",
+  scopeCategory: "全部",
   heroIndex: 0,
   touchStartX: 0,
   helpType: "案例咨询",
@@ -207,11 +287,14 @@ const state = {
 };
 
 globalThis.state = state;
+let miniConfig = loadMiniConfig();
+globalThis.miniConfig = miniConfig;
 
 const app = document.querySelector("#app");
 const pageTitle = document.querySelector("#pageTitle");
 const backBtn = document.querySelector("#backBtn");
 const toast = document.querySelector("#toast");
+const tabbarButtons = [...document.querySelectorAll(".tabbar button")];
 
 function caseById(id) {
   return cases.find((item) => item.id === id) || cases[0];
@@ -303,80 +386,50 @@ function renderSectionHead(title, action = "") {
 }
 
 function renderHome() {
-  const featured = cases.slice(0, 2);
-  const videoHighlights = cases.filter((item) => item.videos && item.videos.length).slice(0, 2);
   app.innerHTML = `
     ${homeHeroMarkup()}
-    <div class="weather-strip">
-      <span>已服务 <strong>1500+</strong> 品牌客户</span>
-      <span>案例 / 设备 / 上门服务</span>
+    <div class="stat-strip">
+      <span>已服务 <strong>2000+</strong> 品牌客户</span>
+      <span>移动宽带 / 收银系统 / 上门服务</span>
     </div>
 
     <section class="section">
-      ${renderSectionHead("快速入口")}
-      <div class="quick-grid">
-        <button class="quick-card" onclick="setView('cases', { category: '餐饮' })"><span>餐</span><b>餐饮案例</b></button>
-        <button class="quick-card" onclick="setView('cases', { category: '茶饮' })"><span>茶</span><b>茶饮方案</b></button>
-        <button class="quick-card" onclick="setView('cases', { category: '零售' })"><span>零</span><b>零售展示</b></button>
-        <button class="quick-card" onclick="setView('cases', { category: '服务' })"><span>服</span><b>服务工单</b></button>
-        <button class="quick-card service-entry" onclick="setView('services')"><span>能</span><b>服务能力</b></button>
-        <button class="quick-card service-entry" onclick="setView('help')"><span>咨</span><b>咨询顾问</b></button>
-        <button class="quick-card service-entry" onclick="setCase('tea-device')"><span>机</span><b>设备方案</b></button>
-        <button class="quick-card service-entry" onclick="window.location.href='./index.html'"><span>返</span><b>返回入口</b></button>
-      </div>
-    </section>
-
-    <section class="section">
-      ${renderSectionHead("推荐案例", `<button onclick="setView('cases')">查看全部 ›</button>`)}
-      <div class="feature-strip">
-        ${featured.map((item) => `
-          <article class="case-card" onclick="setCase('${item.id}')">
-            <img src="${item.image}" alt="${item.title}">
-            <div class="case-body">
-              <div class="case-head">
-                <h3>${item.title}</h3>
-                <span class="status-pill">${item.category}</span>
-              </div>
-              <p>${item.subtitle}</p>
-              <div class="tag-row">${item.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
-            </div>
-          </article>
+      <div class="quick-grid quick-grid-inline">
+        ${miniConfig.quickModules.map((item) => `
+          <button class="quick-card" onclick="invokeConfiguredView('${item.view}', '${actionPayloadAttr(item.payload)}')">
+            ${renderIconBox(item)}
+            <b>${item.label}</b>
+          </button>
         `).join("")}
       </div>
     </section>
 
     <section class="section">
-      ${renderSectionHead("视频速览")}
-      <div class="video-grid">
-        ${videoHighlights.map((item) => `
-          <article class="video-card" onclick="setCase('${item.id}')">
-            <div class="video-poster">
-              <img src="${item.videos[0].poster}" alt="${item.videos[0].title}">
-              <span class="video-badge">${item.videos[0].duration}</span>
-              <span class="video-play">▶</span>
-            </div>
-            <div class="video-body">
-              <strong>${item.videos[0].title}</strong>
-              <span>${item.title}</span>
-            </div>
-          </article>
+      <div class="panel-grid">
+        ${miniConfig.caseTiles.map((item) => `
+          <button class="panel-tile" onclick="invokeConfiguredView('${item.view}', '${actionPayloadAttr(item.payload)}')">
+            ${renderTileImage(item)}
+            <strong>${item.label}</strong>
+          </button>
         `).join("")}
       </div>
     </section>
 
     <section class="section">
-      ${renderSectionHead("讲解路径")}
-      ${routes.map((route) => `
-        <article class="route-card">
-          <div class="route-card-head">
-            <h3>${route.title}</h3>
-            <span>${route.time}</span>
-          </div>
-          <p>${route.desc}</p>
-          <div class="chip-row">${route.stops.map((stop) => `<span class="chip">${stop}</span>`).join("")}</div>
-        </article>
-      `).join("")}
+      <div class="business-panel">
+        <h2>主营业务</h2>
+        <div class="business-grid">
+          ${miniConfig.businessItems.map((item) => `
+            <button class="business-pill" onclick="invokeConfiguredView('${item.view}', '${actionPayloadAttr(item.payload)}')">
+              ${renderBusinessImage(item)}
+              <span>${item.label}</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
     </section>
+
+    <section class="section home-footer-space"></section>
   `;
 }
 
@@ -477,24 +530,94 @@ function renderDetail() {
 }
 
 function renderServices() {
+  const scopeTitle = state.scopeCategory === "全部" ? "业务范围" : `${state.scopeCategory}分类`;
   app.innerHTML = `
-    <section class="service-hero service-hero-cashier">
-      <span class="eyebrow">六大服务能力</span>
-      <h1>系统、硬件、商城与上门交付一体说明</h1>
-      <p>小程序端不仅展示案例，也把客户最关心的服务能力做成可点击页面。</p>
-    </section>
-    ${services.map((service) => `
-      <article class="service-card">
-        <img class="service-thumb" src="${service.image}" alt="${service.title}">
-        <h3>${service.title}</h3>
-        <p>${service.desc}</p>
-        <div class="cta-row service-cta">
-          <button class="primary-btn" onclick="showToast('已记录该服务关注点')">标记重点</button>
-          <button class="ghost-btn" onclick="setView('help')">立即咨询</button>
+    <section class="section">
+      <article class="service-panel">
+        <h2>${scopeTitle}</h2>
+        <p class="section-note">点击业务分类后进入对应模块，后台修改后会同步到这里。</p>
+        <div class="service-chip-grid">
+          ${miniConfig.businessItems.map((item) => `
+            <button class="service-chip ${state.scopeCategory === item.label ? "active" : ""}" onclick="invokeConfiguredView('scope', '${actionPayloadAttr({ scopeCategory: item.label })}')">${item.label}</button>
+          `).join("")}
         </div>
       </article>
-    `).join("")}
+    </section>
+    <section class="section service-stack">
+      ${scopeItems(state.scopeCategory).map((service) => `
+        <article class="service-card">
+          <img class="service-thumb" src="${service.image}" alt="${service.title}">
+          <div class="service-card-body">
+            <h3>${service.title}</h3>
+            <p>${service.desc}</p>
+            <div class="cta-row service-cta">
+              <button class="ghost-btn" onclick="setView('help')">立即咨询</button>
+            </div>
+          </div>
+        </article>
+      `).join("")}
+    </section>
   `;
+}
+
+function renderCompany() {
+  app.innerHTML = `
+    <section class="detail-hero company-hero" style="background-image:url('./resource/收银台03.jpg')">
+      <span class="eyebrow">公司介绍</span>
+      <h1>软剑熊以系统、硬件和交付服务连接门店经营</h1>
+      <p>围绕收银系统、智能设备、小程序展示和上门服务，做可落地的门店数字化方案。</p>
+      <div class="hero-actions">
+        <button class="primary-btn" onclick="setView('scope')">查看业务范围</button>
+        <button class="secondary-btn" onclick="setView('help')">联系合作</button>
+      </div>
+    </section>
+    <section class="detail-grid">
+      <article class="notice-card">
+        <h3>核心介绍</h3>
+        <p>面向餐饮、零售、茶饮、服务等门店场景，输出收银、会员、硬件联调和实施服务的组合方案。</p>
+      </article>
+      <article class="notice-card">
+        <h3>服务特点</h3>
+        <p>展示内容以真实现场素材为主，强调设备落地、交付闭环和后续维护，不做空泛产品话术。</p>
+      </article>
+      <article class="notice-card">
+        <h3>合作方式</h3>
+        <p>支持销售拜访演示、客户转介绍和线上咨询留资，后台可持续调整首页模块和入口图标。</p>
+      </article>
+    </section>
+  `;
+}
+
+const scopePreset = [
+  { id: "移动宽带", title: "移动宽带", desc: "门店开店和临时点位的接入方案。", image: "./resource/环境01.jpg" },
+  { id: "监控网络", title: "监控网络", desc: "门店安防、画面回传和联网协同。", image: "./resource/环境02.jpg" },
+  { id: "门店导航", title: "门店导航", desc: "进店引导、桌台导航和顾客动线展示。", image: "./resource/收银台02.jpg" },
+  { id: "收银系统", title: "收银系统", desc: "前台收银、打印和扫码联动。", image: "./resource/收银台01.jpg" },
+  { id: "配套硬件", title: "配套硬件", desc: "小票机、称重设备和收银终端组合。", image: "./resource/小票机.jpg" },
+  { id: "海报设计", title: "海报设计", desc: "活动页、门店海报和宣传物料输出。", image: "./resource/环境01.jpg" }
+];
+
+function scopeItems(category) {
+  if (!category || category === "全部") {
+    return scopePreset;
+  }
+  return scopePreset.filter((item) => item.id === category);
+}
+
+function renderIconBox(item) {
+  if (item.iconImage) {
+    return `<span class="quick-icon"><img src="${item.iconImage}" alt=""></span>`;
+  }
+  return `<span class="quick-icon">${(item.label || "").slice(0, 1)}</span>`;
+}
+
+function actionPayloadAttr(payload) {
+  return encodeURIComponent(JSON.stringify(payload || {}));
+}
+
+function invokeConfiguredView(view, encodedPayload = "") {
+  const payload = encodedPayload ? JSON.parse(decodeURIComponent(encodedPayload)) : {};
+  setView(view, payload);
 }
 
 function renderHelp() {
@@ -556,15 +679,16 @@ function renderMine() {
 }
 
 function render() {
-  document.querySelectorAll(".tabbar button").forEach((button) => {
-    button.classList.toggle("active", button.dataset.tab === (state.view === "detail" || state.view === "help" ? (state.view === "help" ? "services" : "cases") : state.view));
-  });
+  document.body.dataset.view = state.view;
+  renderTabbar();
 
   const viewMap = {
     home: { title: "软剑熊案例中心", render: renderHome },
     cases: { title: "案例库", render: renderCases },
     detail: { title: "案例详情", render: renderDetail },
-    services: { title: "服务能力", render: renderServices },
+    company: { title: "公司介绍", render: renderCompany },
+    scope: { title: "业务范围", render: renderServices },
+    services: { title: "业务范围", render: renderServices },
     help: { title: "咨询顾问", render: renderHelp },
     mine: { title: "我的", render: renderMine }
   };
@@ -573,6 +697,44 @@ function render() {
   pageTitle.textContent = current.title;
   current.render();
   app.scrollTop = 0;
+}
+
+function renderTabbar() {
+  const viewToTab = {
+    home: "home",
+    cases: "cases",
+    detail: "cases",
+    company: "home",
+    scope: "services",
+    services: "services",
+    help: "services",
+    mine: "mine"
+  };
+  const activeTab = viewToTab[state.view] || "home";
+  tabbarButtons.forEach((button) => {
+    const item = miniConfig.tabBar.find((entry) => entry.tab === button.dataset.tab);
+    if (item) {
+      button.dataset.tab = item.tab;
+      button.innerHTML = `<span class="tab-icon">${renderTabIcon(item)}</span>${item.label}`;
+    }
+    button.classList.toggle("active", button.dataset.tab === activeTab);
+  });
+}
+
+function renderTabIcon(item) {
+  return item.iconImage ? `<img src="${item.iconImage}" alt="">` : (item.label || "").slice(0, 1);
+}
+
+function renderTileImage(item) {
+  return item.iconImage
+    ? `<span class="tile-thumb"><img src="${item.iconImage}" alt="${item.label}"></span>`
+    : `<span class="tile-thumb tile-fallback">${(item.label || "").slice(0, 1)}</span>`;
+}
+
+function renderBusinessImage(item) {
+  return item.iconImage
+    ? `<span class="business-thumb"><img src="${item.iconImage}" alt="${item.label}"></span>`
+    : `<span class="business-thumb business-fallback">${(item.label || "").slice(0, 1)}</span>`;
 }
 
 backBtn.addEventListener("click", () => {
@@ -601,5 +763,13 @@ window.handleHeroTouchStart = handleHeroTouchStart;
 window.handleHeroTouchEnd = handleHeroTouchEnd;
 window.showToast = showToast;
 window.submitHelp = submitHelp;
+
+window.addEventListener("storage", (event) => {
+  if (event.key === MINI_CONFIG_KEY) {
+    miniConfig = loadMiniConfig();
+    globalThis.miniConfig = miniConfig;
+    render();
+  }
+});
 
 render();

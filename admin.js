@@ -6,6 +6,113 @@ const adminState = {
   toastTimer: null
 };
 
+const MINI_CONFIG_KEY = "ysb_case_show_mini_config_v1";
+
+const defaultFrontendConfig = {
+  quickModules: [
+    { id: "company", label: "公司介绍", iconImage: "./resource/ui-icons/company.svg", view: "company", payload: {} },
+    { id: "scope", label: "业务范围", iconImage: "./resource/ui-icons/scope.svg", view: "scope", payload: { scopeCategory: "全部" } },
+    { id: "cashier", label: "收银套餐", iconImage: "./resource/ui-icons/cashier.svg", view: "detail", payload: { caseId: "zhedinghui" } },
+    { id: "cooperate", label: "商务合作", iconImage: "./resource/ui-icons/cooperate.svg", view: "help", payload: {} }
+  ],
+  caseTiles: [
+    { id: "case-restaurant", label: "餐饮案例", category: "餐饮", iconImage: "./resource/收银台01.jpg", view: "cases", payload: { category: "餐饮" } },
+    { id: "case-retail", label: "零售案例", category: "零售", iconImage: "./resource/环境01.jpg", view: "cases", payload: { category: "零售" } },
+    { id: "case-entertainment", label: "休娱案例", category: "服务", iconImage: "./resource/上门服务工单.jpg", view: "cases", payload: { category: "服务" } },
+    { id: "case-more", label: "更多案例", category: "全部", iconImage: "./resource/收银台03.jpg", view: "cases", payload: { category: "全部" } }
+  ],
+  businessItems: [
+    { id: "broadband", label: "移动宽带", iconImage: "./resource/环境02.jpg", view: "scope", payload: { scopeCategory: "移动宽带" } },
+    { id: "monitor", label: "监控网络", iconImage: "./resource/收银台02.jpg", view: "scope", payload: { scopeCategory: "监控网络" } },
+    { id: "nav", label: "门店导航", iconImage: "./resource/环境01.jpg", view: "scope", payload: { scopeCategory: "门店导航" } },
+    { id: "cashier-service", label: "收银系统", iconImage: "./resource/收银台01.jpg", view: "scope", payload: { scopeCategory: "收银系统" } },
+    { id: "hardware", label: "配套硬件", iconImage: "./resource/小票机.jpg", view: "scope", payload: { scopeCategory: "配套硬件" } },
+    { id: "poster", label: "海报设计", iconImage: "./resource/上门服务工单.jpg", view: "scope", payload: { scopeCategory: "海报设计" } }
+  ],
+  tabBar: [
+    { tab: "home", label: "首页", iconImage: "./resource/ui-icons/home.svg" },
+    { tab: "cases", label: "案例", iconImage: "./resource/ui-icons/case.svg" },
+    { tab: "services", label: "服务", iconImage: "./resource/ui-icons/service.svg" },
+    { tab: "mine", label: "我的", iconImage: "./resource/ui-icons/mine.svg" }
+  ]
+};
+
+function cloneConfig(source) {
+  return JSON.parse(JSON.stringify(source));
+}
+
+function mergeByKey(sourceList, fallbackList, key) {
+  const sourceMap = new Map((Array.isArray(sourceList) ? sourceList : []).map((item) => [item[key], item]));
+  return fallbackList.map((fallbackItem) => {
+    const current = sourceMap.get(fallbackItem[key]) || {};
+    return {
+      ...cloneConfig(fallbackItem),
+      ...current,
+      iconImage: current.iconImage !== undefined ? current.iconImage : (fallbackItem.iconImage || ""),
+      payload: {
+        ...cloneConfig(fallbackItem.payload || {}),
+        ...cloneConfig(current.payload || {})
+      }
+    };
+  });
+}
+
+function loadFrontendConfig() {
+  try {
+    const raw = localStorage.getItem(MINI_CONFIG_KEY);
+    if (!raw) return cloneConfig(defaultFrontendConfig);
+    const parsed = JSON.parse(raw);
+    const merged = {
+      quickModules: mergeByKey(parsed.quickModules, defaultFrontendConfig.quickModules, "id"),
+      caseTiles: mergeByKey(parsed.caseTiles, defaultFrontendConfig.caseTiles, "id"),
+      businessItems: mergeByKey(parsed.businessItems, defaultFrontendConfig.businessItems, "id"),
+      tabBar: mergeByKey(parsed.tabBar, defaultFrontendConfig.tabBar, "tab")
+    };
+    if (JSON.stringify(parsed) !== JSON.stringify(merged)) {
+      localStorage.setItem(MINI_CONFIG_KEY, JSON.stringify(merged));
+    }
+    return merged;
+  } catch {
+    return cloneConfig(defaultFrontendConfig);
+  }
+}
+
+const frontendConfigState = loadFrontendConfig();
+
+const quickTargetOptions = [
+  { value: "company", label: "公司介绍" },
+  { value: "scope", label: "业务范围" },
+  { value: "detail", label: "案例详情" },
+  { value: "help", label: "咨询顾问" },
+  { value: "cases", label: "案例列表" }
+];
+
+const caseCategoryOptions = [
+  { value: "餐饮", label: "餐饮" },
+  { value: "茶饮", label: "茶饮" },
+  { value: "零售", label: "零售" },
+  { value: "服务", label: "服务" },
+  { value: "全部", label: "全部" }
+];
+
+const scopeCategoryOptions = [
+  { value: "全部", label: "全部" },
+  { value: "移动宽带", label: "移动宽带" },
+  { value: "监控网络", label: "监控网络" },
+  { value: "门店导航", label: "门店导航" },
+  { value: "收银系统", label: "收银系统" },
+  { value: "配套硬件", label: "配套硬件" },
+  { value: "海报设计", label: "海报设计" }
+];
+
+const caseTargetOptions = [
+  { value: "餐饮", label: "餐饮" },
+  { value: "茶饮", label: "茶饮" },
+  { value: "零售", label: "零售" },
+  { value: "服务", label: "服务" },
+  { value: "全部", label: "全部" }
+];
+
 const adminCases = [
   {
     id: "zhedinghui",
@@ -99,6 +206,16 @@ const statCases = document.querySelector("#statCases");
 const statPublished = document.querySelector("#statPublished");
 const statAssets = document.querySelector("#statAssets");
 const statVideos = document.querySelector("#statVideos");
+const configHost = document.querySelector("#configHost");
+const saveConfigBtn = document.querySelector("#saveConfigBtn");
+
+function escapeAttr(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
 
 function showToast(message) {
   toast.textContent = message;
@@ -257,6 +374,198 @@ function renderAssets() {
   `).join("");
 }
 
+function renderConfigPanel() {
+  configHost.innerHTML = `
+    <div class="config-grid">
+      <article class="config-card">
+        <h3>首页快捷模块</h3>
+        <div class="config-list">
+          ${frontendConfigState.quickModules.map((item, index) => renderConfigRow("quick", index, item)).join("")}
+        </div>
+      </article>
+      <article class="config-card">
+        <h3>中部案例入口</h3>
+        <div class="config-list">
+          ${frontendConfigState.caseTiles.map((item, index) => renderConfigRow("case", index, item)).join("")}
+        </div>
+      </article>
+      <article class="config-card">
+        <h3>主营业务与底部导航</h3>
+        <div class="config-list">
+          ${frontendConfigState.businessItems.map((item, index) => renderConfigRow("business", index, item)).join("")}
+          ${frontendConfigState.tabBar.map((item, index) => renderConfigRow("tab", index, item)).join("")}
+        </div>
+      </article>
+    </div>
+    <div class="config-note">说明：前台小程序会读取同一份本地配置，刷新页面后即可看到后台修改结果。</div>
+  `;
+}
+
+function renderConfigRow(group, index, item) {
+  if (group === "quick") {
+    return `
+      <div class="config-row">
+        <div class="config-row-head">
+          <strong>快捷模块 ${index + 1}</strong>
+        </div>
+        <div class="config-fields">
+          <input data-group="quick" data-index="${index}" data-field="label" value="${escapeAttr(item.label)}" placeholder="标题">
+          <input data-group="quick" data-index="${index}" data-field="iconImage" value="${escapeAttr(item.iconImage || "")}" placeholder="图标图片地址">
+          <select data-group="quick" data-index="${index}" data-field="view">
+            ${renderOptions(quickTargetOptions, item.view)}
+          </select>
+          ${renderQuickPayloadField(index, item)}
+        </div>
+      </div>
+    `;
+  }
+  if (group === "case") {
+    return `
+      <div class="config-row">
+        <div class="config-row-head">
+          <strong>案例入口 ${index + 1}</strong>
+        </div>
+        <div class="config-fields">
+          <input data-group="case" data-index="${index}" data-field="label" value="${escapeAttr(item.label)}" placeholder="标题">
+          <input data-group="case" data-index="${index}" data-field="iconImage" value="${escapeAttr(item.iconImage || "")}" placeholder="图标图片地址">
+          <select data-group="case" data-index="${index}" data-field="category">
+            ${renderOptions(caseTargetOptions, item.category)}
+          </select>
+        </div>
+      </div>
+    `;
+  }
+  if (group === "business") {
+    return `
+      <div class="config-row">
+        <div class="config-row-head">
+          <strong>主营业务 ${index + 1}</strong>
+        </div>
+        <div class="config-fields">
+          <input data-group="business" data-index="${index}" data-field="label" value="${escapeAttr(item.label)}" placeholder="标题">
+          <input data-group="business" data-index="${index}" data-field="iconImage" value="${escapeAttr(item.iconImage || "")}" placeholder="图标图片地址">
+          <select data-group="business" data-index="${index}" data-field="scopeCategory">
+            ${renderOptions(scopeCategoryOptions, item.payload?.scopeCategory || "全部")}
+          </select>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="config-row">
+      <div class="config-row-head">
+        <strong>底部导航 ${index + 1}</strong>
+      </div>
+      <div class="config-fields">
+        <input data-group="tab" data-index="${index}" data-field="label" value="${escapeAttr(item.label)}" placeholder="标题">
+        <input data-group="tab" data-index="${index}" data-field="iconImage" value="${escapeAttr(item.iconImage || "")}" placeholder="图标图片地址">
+      </div>
+    </div>
+  `;
+}
+
+function renderQuickPayloadField(index, item) {
+  if (item.view === "detail") {
+    return `
+      <select class="full" data-group="quick" data-index="${index}" data-field="caseId">
+        ${renderOptions(caseDetailsOptions(), item.payload?.caseId || "zhedinghui")}
+      </select>
+    `;
+  }
+  if (item.view === "scope") {
+    return `
+      <select class="full" data-group="quick" data-index="${index}" data-field="scopeCategory">
+        ${renderOptions(scopeCategoryOptions, item.payload?.scopeCategory || "全部")}
+      </select>
+    `;
+  }
+  if (item.view === "cases") {
+    return `
+      <select class="full" data-group="quick" data-index="${index}" data-field="category">
+        ${renderOptions(caseTargetOptions, item.payload?.category || "全部")}
+      </select>
+    `;
+  }
+  return `<div class="config-note full">该模块点击后直接跳转，无需额外参数。</div>`;
+}
+
+function renderOptions(options, selectedValue) {
+  return options.map((option) => `<option value="${escapeAttr(option.value)}" ${option.value === selectedValue ? "selected" : ""}>${option.label}</option>`).join("");
+}
+
+function caseDetailsOptions() {
+  return adminCases.map((item) => ({ value: item.id, label: item.title }));
+}
+
+function saveFrontendConfig() {
+  const nextConfig = {
+    quickModules: frontendConfigState.quickModules.map((item) => ({ id: item.id, label: item.label, iconImage: item.iconImage || "", view: item.view, payload: cloneConfig(item.payload || {}) })),
+    caseTiles: frontendConfigState.caseTiles.map((item) => ({ id: item.id, label: item.label, iconImage: item.iconImage || "", category: item.category, view: item.view, payload: cloneConfig(item.payload || {}) })),
+    businessItems: frontendConfigState.businessItems.map((item) => ({ id: item.id, label: item.label, iconImage: item.iconImage || "", view: item.view, payload: cloneConfig(item.payload || {}) })),
+    tabBar: frontendConfigState.tabBar.map((item) => ({ tab: item.tab, label: item.label, iconImage: item.iconImage || "" }))
+  };
+  document.querySelectorAll("[data-group]").forEach((input) => {
+    const group = input.dataset.group;
+    const index = Number(input.dataset.index);
+    const field = input.dataset.field;
+    const value = input.value.trim();
+    if (group === "quick") {
+      const item = nextConfig.quickModules[index];
+      if (!item) return;
+      if (field === "view") {
+        item.view = value;
+        if (value === "company" || value === "help") {
+          item.payload = {};
+        }
+        if (value === "scope") {
+          item.payload = { scopeCategory: "全部" };
+        }
+        if (value === "detail") {
+          item.payload = { caseId: adminCases[0]?.id || "" };
+        }
+        if (value === "cases") {
+          item.payload = { category: "全部" };
+        }
+        return;
+      }
+      if (field === "caseId" || field === "scopeCategory" || field === "category") {
+        item.payload = item.payload || {};
+        item.payload[field === "caseId" ? "caseId" : field] = value;
+        return;
+      }
+      item[field] = value;
+    }
+    if (group === "case") {
+      const item = nextConfig.caseTiles[index];
+      if (!item) return;
+      if (field === "category") {
+        item.category = value;
+        item.payload = { category: value };
+        return;
+      }
+      item[field] = value;
+    }
+    if (group === "business") {
+      const item = nextConfig.businessItems[index];
+      if (!item) return;
+      if (field === "scopeCategory") {
+        item.payload = { scopeCategory: value };
+        return;
+      }
+      item[field] = value;
+    }
+    if (group === "tab") {
+      const item = nextConfig.tabBar[index];
+      if (!item) return;
+      item[field] = value;
+    }
+  });
+  localStorage.setItem(MINI_CONFIG_KEY, JSON.stringify(nextConfig));
+  Object.assign(frontendConfigState, nextConfig);
+  renderConfigPanel();
+  showToast("前台配置已保存");
+}
+
 function saveCase() {
   const item = currentCase();
   item.title = document.querySelector("#caseTitle").value.trim() || item.title;
@@ -382,10 +691,12 @@ function init() {
   renderCaseList();
   renderEditor();
   renderAssets();
+  renderConfigPanel();
   bindCaseListEvents();
   bindAssetEvents();
   bindFilters();
   bindUpload();
+  saveConfigBtn.addEventListener("click", saveFrontendConfig);
 }
 
 init();

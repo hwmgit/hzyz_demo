@@ -45,8 +45,7 @@ body {
 }
 
 .portal-copy,
-.portal-card,
-.summary-panel {
+.portal-card {
   border: 1px solid var(--line);
   background: var(--panel);
   box-shadow: var(--shadow);
@@ -171,37 +170,13 @@ body {
   font-size: 13px;
 }
 
-.portal-summary {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin-top: 22px;
-}
-
-.summary-panel {
-  padding: 24px;
-  border-radius: 24px;
-}
-
-.summary-panel h2 {
-  margin: 0 0 10px;
-  font-size: 22px;
-}
-
-.summary-panel p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.8;
-}
-
 @media (max-width: 900px) {
   .portal-shell {
     width: min(100% - 22px, 760px);
     padding-top: 20px;
   }
 
-  .portal-hero,
-  .portal-summary {
+  .portal-hero {
     grid-template-columns: 1fr;
   }
 
