@@ -1,6 +1,6 @@
 const heroSlides = [
   {
-    image: "./resource/收银台01.jpg",
+    image: "./resource/home-hero-rx.png",
     eyebrow: "RX 软剑熊",
     title: "企业级 SAAS 数字一体化解决方案专家",
     desc: "系统·配套·平价超市",
@@ -350,13 +350,6 @@ function homeHeroMarkup() {
   const slide = heroSlides[state.heroIndex];
   return `
     <div id="homeHero" class="hero hero-carousel" style="background-image:url('${slide.image}')" ontouchstart="handleHeroTouchStart(event)" ontouchend="handleHeroTouchEnd(event)">
-      <span class="eyebrow">${slide.eyebrow}</span>
-      <h1>${slide.title}</h1>
-      <p>${slide.desc}</p>
-      <div class="hero-actions">
-        <button class="primary-btn" onclick="${slide.primaryAction}">${slide.primary}</button>
-        <button class="secondary-btn" onclick="${slide.secondaryAction}">${slide.secondary}</button>
-      </div>
       <div class="hero-dots">
         ${heroSlides.map((_, index) => `<button class="${index === state.heroIndex ? "active" : ""}" onclick="setHeroSlide(${index})" aria-label="切换到第 ${index + 1} 张"></button>`).join("")}
       </div>
@@ -405,17 +398,6 @@ function renderHome() {
     </section>
 
     <section class="section">
-      <div class="panel-grid">
-        ${miniConfig.caseTiles.map((item) => `
-          <button class="panel-tile" onclick="invokeConfiguredView('${item.view}', '${actionPayloadAttr(item.payload)}')">
-            ${renderTileImage(item)}
-            <strong>${item.label}</strong>
-          </button>
-        `).join("")}
-      </div>
-    </section>
-
-    <section class="section">
       <div class="business-panel">
         <h2>主营业务</h2>
         <div class="business-grid">
@@ -436,95 +418,181 @@ function renderHome() {
 function renderCases() {
   const filtered = state.category === "全部" ? cases : cases.filter((item) => item.category === state.category);
   app.innerHTML = `
-    <section class="section">
-      ${renderSectionHead("案例库", `<button onclick="setView('home')">返回首页 ›</button>`)}
-      <div class="pill-row">
+    <section class="case-folder-browser">
+      <div class="folder-toolbar case-browser-toolbar">
+        <button class="folder-nav-btn" onclick="setView('home')" aria-label="返回首页">‹</button>
+        <div class="folder-path">
+          <span>首页</span>
+          <i>/</i>
+          <strong>${state.category === "全部" ? "案例库" : `${state.category}案例`}</strong>
+        </div>
+        <button class="folder-action-btn" onclick="showToast('已切换文件夹视图')">视图</button>
+      </div>
+
+      <div class="case-browser-head">
+        <div>
+          <h2>案例库</h2>
+          <p>${filtered.length} 个客户案例文件夹，点击文件夹进入资料目录</p>
+        </div>
+        <span class="case-count">${filtered.length} 项</span>
+      </div>
+
+      <div class="pill-row case-browser-filter">
         ${caseCategories.map((category) => `<button class="pill ${category === state.category ? "active" : ""}" onclick="setView('cases', { category: '${category}' })">${category}</button>`).join("")}
       </div>
-      ${filtered.map((item) => `
-        <article class="product-card" onclick="setCase('${item.id}')">
-          <img src="${item.image}" alt="${item.title}">
-          <div class="product-body">
-            <div class="case-head">
-              <h3>${item.title}</h3>
-              <span class="status-pill">${item.category}</span>
-            </div>
-            <p>${item.subtitle}</p>
-            <div class="tag-row">${item.highlights.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
-            <div class="price-row">
-              <div class="price">${item.price}</div>
-              <button class="primary-btn" onclick="event.stopPropagation(); setCase('${item.id}')">查看详情</button>
-            </div>
-          </div>
-        </article>
-      `).join("")}
+
+      <div class="case-folder-grid">
+        ${filtered.map((item) => renderCaseFolderCard(item)).join("")}
+      </div>
     </section>
   `;
 }
 
+function renderCaseFolderCard(item) {
+  const groups = caseFolderGroups(item);
+  const fileCount = groups.reduce((total, group) => total + group.files.length, 0);
+  const previews = [
+    item.image,
+    item.hero,
+    "./resource/上门服务工单.jpg"
+  ];
+  return `
+    <button class="case-folder-card" onclick="setCase('${item.id}')">
+      <span class="folder-tab"></span>
+      <div class="folder-cover-grid">
+        ${previews.map((src) => `<img src="${src}" alt="">`).join("")}
+      </div>
+      <div class="case-folder-body">
+        <div class="case-folder-title">
+          <strong>${item.title}</strong>
+          <span>${item.category}</span>
+        </div>
+        <p>${item.subtitle}</p>
+        <div class="folder-file-meta">
+          <span>${fileCount} 个文件</span>
+          <span>${groups.length} 个目录</span>
+        </div>
+        <div class="folder-mini-list">
+          ${groups.map((group) => `<span>${group.icon} ${group.title}</span>`).join("")}
+        </div>
+      </div>
+    </button>
+  `;
+}
+
+function caseFolderGroups(item) {
+  return [
+    {
+      title: "现场图片",
+      icon: "IMG",
+      files: [
+        { type: "image", name: "门店部署现场.jpg", meta: item.address, thumb: item.image },
+        { type: "image", name: "方案封面图.jpg", meta: item.category, thumb: item.hero },
+        { type: "image", name: "服务记录照片.jpg", meta: "客户资料", thumb: "./resource/上门服务工单.jpg" }
+      ]
+    },
+    {
+      title: "视频资料",
+      icon: "MP4",
+      files: (item.videos || []).map((video) => ({
+        type: "video",
+        name: `${video.title}.mp4`,
+        meta: `时长 ${video.duration}`,
+        thumb: video.poster,
+        src: video.src
+      }))
+    },
+    {
+      title: "产品介绍",
+      icon: "DOC",
+      files: [
+        { type: "doc", name: "客户痛点说明.txt", meta: item.pain },
+        { type: "doc", name: "解决方案.txt", meta: item.solution },
+        { type: "doc", name: "交付成果.txt", meta: item.result }
+      ]
+    },
+    {
+      title: "方案组合",
+      icon: "ZIP",
+      files: item.tickets.map((ticket) => ({
+        type: "folder",
+        name: ticket.name,
+        meta: `${ticket.desc} / ${ticket.price}`
+      }))
+    }
+  ];
+}
+
 function renderDetail() {
   const item = caseById(state.caseId);
+  const groups = caseFolderGroups(item);
+  const firstVideo = (item.videos || [])[0];
   app.innerHTML = `
-    <section class="detail-hero" style="background-image:url('${item.hero}')">
-      <span class="eyebrow">${item.category}</span>
-      <h1>${item.title}</h1>
-      <p>${item.subtitle}</p>
-      <div class="hero-actions">
-        <button class="primary-btn" onclick="setView('help')">咨询方案</button>
-        <button class="secondary-btn" onclick="setView('cases')">更多案例</button>
+    <section class="folder-window">
+      <div class="folder-toolbar">
+        <button class="folder-nav-btn" onclick="setView('cases')" aria-label="返回案例库">‹</button>
+        <div class="folder-path">
+          <span>案例库</span>
+          <i>/</i>
+          <strong>${item.title}</strong>
+        </div>
+        <button class="folder-action-btn" onclick="setView('help')">咨询</button>
+      </div>
+
+      <div class="folder-summary">
+        <img src="${item.image}" alt="${item.title}">
+        <div>
+          <span class="status-pill">${item.category}</span>
+          <h1>${item.title}</h1>
+          <p>${item.subtitle}</p>
+          <div class="tag-row">${item.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+        </div>
+      </div>
+
+      <div class="folder-layout">
+        <aside class="folder-sidebar" aria-label="资料分类">
+          ${groups.map((group, index) => `
+            <button class="${index === 0 ? "active" : ""}" onclick="showToast('已打开${group.title}文件夹')">
+              <span>${group.icon}</span>
+              ${group.title}
+            </button>
+          `).join("")}
+        </aside>
+
+        <section class="folder-content">
+          ${groups.map((group) => `
+            <article class="folder-group">
+              <div class="folder-group-head">
+                <h2>${group.title}</h2>
+                <span>${group.files.length} 项</span>
+              </div>
+              <div class="file-grid">
+                ${group.files.map((file) => `
+                  <button class="file-card file-${file.type}" onclick="showToast('已打开：${file.name}')">
+                    ${renderFileIcon(file)}
+                    <strong>${file.name}</strong>
+                    <span>${file.meta}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </article>
+          `).join("")}
+        </section>
       </div>
     </section>
 
-    <section class="detail-grid">
-      <article class="notice-card">
-        <h3>客户痛点</h3>
-        <p>${item.pain}</p>
-      </article>
-      <article class="notice-card">
-        <h3>解决方案</h3>
-        <p>${item.solution}</p>
-      </article>
-      <article class="notice-card">
-        <h3>交付成果</h3>
-        <p>${item.result}</p>
-        <div class="tag-row">${item.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
-      </article>
-      <article class="ticket-card">
-        <h3>案例视频</h3>
-        <p>用于展示部署现场、设备联调和服务说明，方便客户快速理解实际落地效果。</p>
-        <div class="video-stack">
-          ${(item.videos || []).map((video) => `
-            <div class="video-player-card">
-              <video class="detail-video" controls preload="metadata" poster="${video.poster}">
-                <source src="${video.src}" type="video/mp4">
-              </video>
-              <div class="video-meta">
-                <strong>${video.title}</strong>
-                <span>时长 ${video.duration}</span>
-              </div>
-            </div>
-          `).join("")}
-        </div>
-      </article>
-      <article class="ticket-card">
-        <h3>方案组合</h3>
-        <p>以下内容用于区分不同客户关注点，便于按业务需求组织案例说明。</p>
-        ${item.tickets.map((ticket) => `
-          <div class="support-card">
-            <h3>${ticket.name}</h3>
-            <p>${ticket.desc}</p>
-            <div class="price-row">
-              <div class="price"><small>${ticket.price}</small></div>
-              <button class="ghost-btn" onclick="showToast('已加入重点方案')">加入重点</button>
-            </div>
-          </div>
-        `).join("")}
-      </article>
-      <article class="notice-card">
-        <h3>联系方式</h3>
-        <p>地址：${item.address}</p>
-        <p>电话：${item.phone}</p>
-      </article>
+    <section class="folder-preview">
+      <h3>快速预览</h3>
+      <p>${item.result}</p>
+      ${firstVideo ? `
+        <video class="detail-video" controls preload="metadata" poster="${firstVideo.poster}">
+          <source src="${firstVideo.src}" type="video/mp4">
+        </video>
+      ` : ""}
+      <div class="folder-meta-list">
+        <span>地址：${item.address}</span>
+        <span>电话：${item.phone}</span>
+      </div>
     </section>
   `;
 }
@@ -735,6 +803,19 @@ function renderBusinessImage(item) {
   return item.iconImage
     ? `<span class="business-thumb"><img src="${item.iconImage}" alt="${item.label}"></span>`
     : `<span class="business-thumb business-fallback">${(item.label || "").slice(0, 1)}</span>`;
+}
+
+function renderFileIcon(file) {
+  if (file.thumb) {
+    return `<span class="file-thumb"><img src="${file.thumb}" alt=""></span>`;
+  }
+  const labels = {
+    doc: "TXT",
+    folder: "DIR",
+    video: "MP4",
+    image: "IMG"
+  };
+  return `<span class="file-icon">${labels[file.type] || "FILE"}</span>`;
 }
 
 backBtn.addEventListener("click", () => {
