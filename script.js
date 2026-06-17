@@ -24,6 +24,30 @@ function initNav() {
   });
 }
 
+function initBrandBounce() {
+  const brand = document.querySelector(".brand");
+  const bounceTarget = brand ? brand.querySelector(".brand-bounce") : null;
+  if (!brand || !bounceTarget) return;
+
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let isBouncing = false;
+
+  function startBounce() {
+    if (isBouncing || motionQuery.matches) return;
+    isBouncing = true;
+    brand.classList.add("is-bouncing");
+  }
+
+  bounceTarget.addEventListener("animationend", (event) => {
+    if (event.animationName !== "brand-marble-bounce") return;
+    brand.classList.remove("is-bouncing");
+    isBouncing = false;
+  });
+
+  brand.addEventListener("pointerenter", startBounce);
+  brand.addEventListener("focus", startBounce);
+}
+
 function initContactForm() {
   const form = document.querySelector("[data-contact-form]");
   const status = document.querySelector("[data-form-status]");
@@ -170,6 +194,7 @@ function initAnalytics() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initNav();
+  initBrandBounce();
   initContactForm();
   initHeroShowcase();
   initHeroRotator();

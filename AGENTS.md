@@ -17,7 +17,7 @@
 - 当前页面主体仍为明亮蓝、青、绿，顶部标题栏已调整为深色玻璃感。
 - 首页首屏不再使用背景大图，`.hero-image` 使用暖白色到浅蓝色的多层 CSS 渐变循环。
 - 首页各主模块背景使用暖白到浅蓝的连续渐变过渡，避免服务、流程、联系模块之间出现硬切色块。
-- 四大核心业务模块使用 `assets/module-back-compressed.jpg`，该图由 `assets/back.png` 压缩裁切而来；模块文字浮在图片上方。
+- 首页核心业务模块中 AI 顾问、AI 软件、商业运营使用 `assets/module-back-compressed.jpg`，该图由 `assets/back.png` 压缩裁切而来；出海业务模块使用 `assets/out_cn.jpeg`；模块文字浮在图片上方。
 - 顶部导航中“服务矩阵”仍跳转首页服务矩阵；“AI 顾问 / AI 软件 / 出海业务 / 商业运营 / 关于盈泽”分别跳转到独立页面，独立页面图片复用 `./assets/legacy/` 资源。
 - 顶部商标引用本目录 `assets/logo-mark.png`，并为“商标 + 盈泽数科”增加初始化入场动效；减少动画偏好下自动关闭。
 - 首页首屏左侧为 `hero-tabs` + `hero-rotator` 文案切换模块，参考有赞首页左侧标签与标题自动循环效果；当前四个主题固定为“AI转型 / 软件定制 / 实体商业 / 商业出海”，标题与说明文案由 `script.js` 的 `initHeroRotator()` 同步切换。
@@ -38,7 +38,7 @@
 ## 3. 重要注意事项
 
 - 修改 v5 前先读取本目录 `DESIGN.md`。
-- 四大核心业务模块当前按需求共用压缩后的 `back.png` 模块图，不要改回旧版四张模块图；该约定不适用于首页首屏背景，首屏背景保持 CSS 渐变循环。
+- 首页核心业务模块当前按需求使用压缩后的 `back.png` 模块图，出海业务模块单独使用 `assets/out_cn.jpeg`；不要改回旧版四张模块图。该约定不适用于首页首屏背景，首屏背景保持 CSS 渐变循环。
 - `hero-showcase` 由 `script.js` 的 `initHeroShowcase()` 在运行时克隆每条轨道卡片并持续更新 `transform`，用于接近有赞的滚动效果；克隆卡片需保持 `aria-hidden="true"`，避免读屏重复朗读。
 - `showcase-lane` 的 `transform` 由 JS 每帧控制，禁止再给 `.hero-showcase:hover .showcase-lane` 或 lane 本身添加 `transition: transform`，否则循环回绕时会出现掉落或反向滚动错觉。
 - `hero-rotator` 的标题切换高度由 JS 动态读取，不要在 JS 中写死桌面高度；如修改 CSS 高度，需验证桌面和移动端标题滑动位置。
