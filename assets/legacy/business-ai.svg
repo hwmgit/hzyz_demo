@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" role="img" aria-label="AI 化转型顾问服务">
+  <rect width="820" height="520" rx="34" fill="#08111d"/>
+  <rect x="94" y="108" width="632" height="316" rx="34" fill="#101d2b" stroke="#274969" stroke-width="2"/>
+  <circle cx="258" cy="266" r="86" fill="#0b86ff" opacity=".92"/>
+  <circle cx="410" cy="266" r="86" fill="#ffffff" opacity=".95"/>
+  <circle cx="562" cy="266" r="86" fill="#ff3d57" opacity=".88"/>
+  <path d="M304 266h60M456 266h60" stroke="#82c9ff" stroke-width="14" stroke-linecap="round"/>
+  <path d="M234 266h48M258 242v48M386 266h48M410 242v48M538 266h48M562 242v48" stroke="#08111d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M160 390c66-56 129-68 196-36 70 34 143 22 216-34 30-23 57-34 88-33" fill="none" stroke="#00a7ff" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+  <text x="78" y="76" fill="#fff" font-family="Arial, sans-serif" font-size="38" font-weight="800">AI Transformation Advisory</text>
+  <text x="78" y="470" fill="#8aa4c2" font-family="Arial, sans-serif" font-size="18">Diagnosis · Process Redesign · Training · Annual Advisory</text>
+</svg>
