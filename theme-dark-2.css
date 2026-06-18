@@ -1,0 +1,115 @@
+body.theme-dark-2 {
+  --bg: #08142a;
+  --surface: #10213b;
+  --surface-strong: #162844;
+  --ink: #f2f7ff;
+  --muted: #99abc4;
+  --line: rgba(164, 190, 224, 0.18);
+  --blue: #7fb0ff;
+  --cyan: #8fdcff;
+  --mint: #75e4c0;
+  --soft-blue: rgba(127, 176, 255, 0.14);
+  --soft-mint: rgba(117, 228, 192, 0.12);
+}
+
+body.theme-dark-2 {
+  background:
+    radial-gradient(circle at 14% 16%, rgba(80, 122, 185, 0.24) 0%, rgba(80, 122, 185, 0) 28%),
+    radial-gradient(circle at 84% 18%, rgba(114, 160, 228, 0.18) 0%, rgba(114, 160, 228, 0) 30%),
+    linear-gradient(180deg, #08142a 0%, #0b1830 42%, #0a1325 100%);
+}
+
+body.theme-dark-2 .site-header {
+  background:
+    linear-gradient(135deg, rgba(8, 17, 35, 0.97), rgba(15, 28, 53, 0.92)),
+    var(--surface);
+  border-bottom-color: rgba(174, 199, 233, 0.16);
+}
+
+body.theme-dark-2 .brand,
+body.theme-dark-2 .site-nav,
+body.theme-dark-2 .nav-toggle {
+  color: #f7fbff;
+}
+
+body.theme-dark-2 .header-action,
+body.theme-dark-2 .btn-primary {
+  background: linear-gradient(135deg, #6da0ff, #89dcff);
+  box-shadow: 0 12px 28px rgba(102, 154, 255, 0.28);
+}
+
+body.theme-dark-2 .btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(164, 190, 224, 0.18);
+}
+
+body.theme-dark-2 .hero-image {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(92, 129, 204, 0.22) 0%, rgba(92, 129, 204, 0) 28%),
+    radial-gradient(circle at 82% 18%, rgba(138, 191, 255, 0.16) 0%, rgba(138, 191, 255, 0) 30%),
+    radial-gradient(circle at 68% 78%, rgba(117, 228, 192, 0.1) 0%, rgba(117, 228, 192, 0) 34%),
+    linear-gradient(120deg, #08111f 0%, #0e1d35 42%, #091423 100%);
+}
+
+body.theme-dark-2 .hero-tabs,
+body.theme-dark-2 .showcase-card--text,
+body.theme-dark-2 .service-card,
+body.theme-dark-2 .value-list article,
+body.theme-dark-2 .process-grid article,
+body.theme-dark-2 .contact-form,
+body.theme-dark-2 .advisory-hero-card,
+body.theme-dark-2 .advisory-grid article,
+body.theme-dark-2 .legacy-product-card,
+body.theme-dark-2 .legacy-mini-stats span {
+  background-color: rgba(16, 33, 59, 0.96);
+  border-color: rgba(164, 190, 224, 0.16);
+}
+
+body.theme-dark-2 .hero-tabs button.is-active {
+  background: linear-gradient(135deg, #2b4c82, #10233e);
+}
+
+body.theme-dark-2 .showcase-card--text strong,
+body.theme-dark-2 .site-footer strong {
+  color: #f5fbff;
+}
+
+body.theme-dark-2 .showcase-card--text span,
+body.theme-dark-2 .advisory-hero-card p,
+body.theme-dark-2 .advisory-grid p,
+body.theme-dark-2 .legacy-product-card p,
+body.theme-dark-2 .legacy-mini-stats span,
+body.theme-dark-2 .contact-form label {
+  color: #a0b5cf;
+}
+
+body.theme-dark-2 .hero-showcase::before {
+  background: linear-gradient(180deg, rgba(8, 20, 34, 0.9), transparent);
+}
+
+body.theme-dark-2 .hero-showcase::after {
+  background: linear-gradient(0deg, rgba(8, 20, 34, 0.94), transparent);
+}
+
+body.theme-dark-2 .showcase-visual::before,
+body.theme-dark-2 .service-card::after {
+  background:
+    linear-gradient(180deg, rgba(5, 11, 19, 0.1) 0%, rgba(5, 11, 19, 0.38) 42%, rgba(5, 11, 19, 0.86) 100%),
+    linear-gradient(90deg, rgba(111, 163, 255, 0.16), rgba(117, 228, 192, 0.08));
+}
+
+body.theme-dark-2 .services,
+body.theme-dark-2 .advisory-band,
+body.theme-dark-2 .advisory-method,
+body.theme-dark-2 .advisory-cta,
+body.theme-dark-2 .process,
+body.theme-dark-2 .contact,
+body.theme-dark-2 .bright-band {
+  background-color: #0a1627;
+}
+
+body.theme-dark-2 .site-footer {
+  background: #060c16;
+}
+
+

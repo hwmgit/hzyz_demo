@@ -1,0 +1,87 @@
+body.theme-light-3 {
+  --bg: #f8fbff;
+  --surface: #ffffff;
+  --surface-strong: #f2f6fb;
+  --ink: #101f38;
+  --muted: #6a7890;
+  --line: #dfe8f3;
+  --blue: #5d8edc;
+  --cyan: #8bbfe8;
+  --mint: #8dd9cf;
+  --soft-blue: #eef4fb;
+  --soft-mint: #effaf8;
+  --shadow: 0 24px 72px rgba(66, 92, 126, 0.12);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(214, 226, 242, 0.8) 0%, rgba(214, 226, 242, 0) 34%),
+    linear-gradient(180deg, #fbfdff 0%, #f1f6fc 52%, #ffffff 100%);
+}
+
+body.theme-light-3 .hero-image {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(216, 228, 244, 0.88) 0%, rgba(216, 228, 244, 0) 36%),
+    radial-gradient(circle at 82% 18%, rgba(232, 240, 250, 0.84) 0%, rgba(232, 240, 250, 0) 34%),
+    linear-gradient(120deg, #fbfdff 0%, #eef5fd 48%, #ffffff 100%);
+}
+
+body.theme-light-3 .eyebrow {
+  color: #6fa3f2;
+}
+
+body.theme-light-3 .hero-tabs {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(209, 221, 236, 0.95);
+}
+
+body.theme-light-3 .hero-tabs button.is-active {
+  background: linear-gradient(135deg, #253b5f, #638cc8);
+}
+
+body.theme-light-3 .header-action,
+body.theme-light-3 .btn-primary {
+  background: linear-gradient(135deg, #5d8edc, #93c7ef);
+}
+
+body.theme-light-3 .btn-secondary {
+  color: #101f38;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+body.theme-light-3 .showcase-card--text {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(209, 221, 236, 0.92);
+}
+
+body.theme-light-3 .showcase-card--text strong {
+  color: #101f38;
+}
+
+body.theme-light-3 .showcase-card--text span {
+  color: #677891;
+}
+
+body.theme-light-3 .showcase-visual::before {
+  content: none;
+}
+
+body.theme-light-3 .hero-showcase::before {
+  background: linear-gradient(180deg, rgba(251, 253, 255, 0.86), transparent);
+}
+
+body.theme-light-3 .hero-showcase::after {
+  background: linear-gradient(0deg, rgba(251, 253, 255, 0.9), transparent);
+}
+
+body.theme-light-3 .services,
+body.theme-light-3 .process,
+body.theme-light-3 .contact {
+  background:
+    radial-gradient(circle at 84% 18%, rgba(210, 226, 244, 0.55) 0%, rgba(210, 226, 244, 0) 32%),
+    linear-gradient(180deg, #f8fbff 0%, #f1f6fc 52%, #fbfdff 100%);
+}
+
+body.theme-light-3 .service-card::after {
+  background:
+    linear-gradient(180deg, rgba(10, 24, 45, 0.08) 0%, rgba(10, 24, 45, 0.34) 46%, rgba(10, 24, 45, 0.88) 100%),
+    linear-gradient(90deg, rgba(93, 142, 220, 0.14), rgba(139, 191, 232, 0.08));
+}

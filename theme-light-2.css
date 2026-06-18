@@ -1,0 +1,90 @@
+body.theme-light-2 {
+  --bg: #f6fbff;
+  --surface: #ffffff;
+  --surface-strong: #eef7ff;
+  --ink: #082444;
+  --muted: #58728e;
+  --line: #d7e8f7;
+  --blue: #1f86df;
+  --cyan: #35c8dc;
+  --mint: #2fd0ad;
+  --soft-blue: #e6f5ff;
+  --soft-mint: #e8fbf6;
+  --shadow: 0 24px 70px rgba(35, 116, 184, 0.13);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(194, 227, 249, 0.74) 0%, rgba(194, 227, 249, 0) 32%),
+    radial-gradient(circle at 86% 20%, rgba(214, 246, 250, 0.62) 0%, rgba(214, 246, 250, 0) 30%),
+    linear-gradient(180deg, #f8fcff 0%, #edf7ff 48%, #fbfdff 100%);
+}
+
+body.theme-light-2 .hero-image {
+  background:
+    radial-gradient(circle at 20% 22%, rgba(184, 226, 255, 0.8) 0%, rgba(184, 226, 255, 0) 32%),
+    radial-gradient(circle at 82% 24%, rgba(207, 248, 250, 0.7) 0%, rgba(207, 248, 250, 0) 32%),
+    radial-gradient(circle at 72% 78%, rgba(230, 242, 255, 0.9) 0%, rgba(230, 242, 255, 0) 38%),
+    linear-gradient(120deg, #fafdff 0%, #edf8ff 46%, #f8fdff 100%);
+}
+
+body.theme-light-2 .eyebrow {
+  color: #2e9aec;
+}
+
+body.theme-light-2 .hero-tabs {
+  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(191, 220, 241, 0.9);
+}
+
+body.theme-light-2 .hero-tabs button.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, #0d3e70, #146fb4);
+}
+
+body.theme-light-2 .header-action,
+body.theme-light-2 .btn-primary {
+  background: linear-gradient(135deg, #2188e6, #35c8dc);
+}
+
+body.theme-light-2 .btn-secondary {
+  color: #082444;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+body.theme-light-2 .showcase-card--text {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(190, 218, 238, 0.86);
+}
+
+body.theme-light-2 .showcase-card--text strong {
+  color: #082444;
+}
+
+body.theme-light-2 .showcase-card--text span {
+  color: #5a718c;
+}
+
+body.theme-light-2 .showcase-visual::before {
+  content: none;
+}
+
+body.theme-light-2 .hero-showcase::before {
+  background: linear-gradient(180deg, rgba(248, 252, 255, 0.86), transparent);
+}
+
+body.theme-light-2 .hero-showcase::after {
+  background: linear-gradient(0deg, rgba(248, 252, 255, 0.9), transparent);
+}
+
+body.theme-light-2 .services,
+body.theme-light-2 .process,
+body.theme-light-2 .contact {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(215, 240, 255, 0.58) 0%, rgba(215, 240, 255, 0) 30%),
+    linear-gradient(180deg, #f7fcff 0%, #edf8ff 54%, #fbfdff 100%);
+}
+
+body.theme-light-2 .service-card::after {
+  background:
+    linear-gradient(180deg, rgba(5, 28, 52, 0.08) 0%, rgba(5, 28, 52, 0.34) 46%, rgba(4, 18, 36, 0.9) 100%),
+    linear-gradient(90deg, rgba(31, 134, 223, 0.18), rgba(47, 208, 173, 0.1));
+}
