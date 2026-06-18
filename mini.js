@@ -48,14 +48,8 @@ const defaultMiniConfig = {
     { id: "case-entertainment", label: "休娱案例", category: "服务", iconImage: "./resource/上门服务工单.jpg", view: "cases", payload: { category: "服务" } },
     { id: "case-more", label: "更多案例", category: "全部", iconImage: "./resource/收银台03.jpg", view: "cases", payload: { category: "全部" } }
   ],
-  businessItems: [
-    { id: "broadband", label: "移动宽带", iconImage: "./resource/环境02.jpg", view: "scope", payload: { scopeCategory: "移动宽带" } },
-    { id: "monitor", label: "监控网络", iconImage: "./resource/收银台02.jpg", view: "scope", payload: { scopeCategory: "监控网络" } },
-    { id: "nav", label: "门店导航", iconImage: "./resource/环境01.jpg", view: "scope", payload: { scopeCategory: "门店导航" } },
-    { id: "cashier", label: "收银系统", iconImage: "./resource/收银台01.jpg", view: "scope", payload: { scopeCategory: "收银系统" } },
-    { id: "hardware", label: "配套硬件", iconImage: "./resource/小票机.jpg", view: "scope", payload: { scopeCategory: "配套硬件" } },
-    { id: "poster", label: "海报设计", iconImage: "./resource/上门服务工单.jpg", view: "scope", payload: { scopeCategory: "海报设计" } }
-  ],
+  businessTree: createDefaultBusinessTree(),
+  businessItems: [],
   tabBar: [
     { tab: "home", label: "首页", iconImage: "./resource/ui-icons/home.svg" },
     { tab: "cases", label: "案例", iconImage: "./resource/ui-icons/case.svg" },
@@ -88,15 +82,326 @@ function mergeByKey(sourceList, fallbackList, key) {
   });
 }
 
+function makeLeafPack(baseId, baseTitle, image, prefix) {
+  return [
+    {
+      id: `${baseId}-${prefix}-1`,
+      title: `${baseTitle} 100M`,
+      description: "入门套餐",
+      image,
+      badge: "套餐",
+      summary: "适合轻量门店。",
+      detail: "适合新店、单点位和基础接入场景。",
+      children: []
+    },
+    {
+      id: `${baseId}-${prefix}-2`,
+      title: `${baseTitle} 300M`,
+      description: "标准套餐",
+      image,
+      badge: "套餐",
+      summary: "适合日常运营。",
+      detail: "适合常规收银、会员和多设备联动。",
+      children: []
+    },
+    {
+      id: `${baseId}-${prefix}-3`,
+      title: `${baseTitle} 500M`,
+      description: "旗舰套餐",
+      image,
+      badge: "套餐",
+      summary: "适合高峰和连锁。",
+      detail: "适合高峰期、连锁门店和多端协同。",
+      children: []
+    }
+  ];
+}
+
+function createBranch(id, title, description, image, detail, childDefs) {
+  return {
+    id,
+    title,
+    description,
+    image,
+    badge: "一级模块",
+    summary: detail,
+    detail,
+    children: childDefs.map((child) => ({
+      id: child.id,
+      title: child.title,
+      description: child.description,
+      image: child.image,
+      badge: "二级页面",
+      summary: child.summary,
+      detail: child.detail,
+      children: makeLeafPack(child.id, child.title, child.image, child.leafPrefix)
+    }))
+  };
+}
+
+function createDefaultBusinessTree() {
+  return [
+    createBranch(
+      "broadband",
+      "宽带",
+      "门店开通、迁移和多运营商接入方案。",
+      "./resource/环境01.jpg",
+      "围绕门店接入、稳定性、开通速度和服务交付，提供多运营商宽带组合方案。",
+      [
+        {
+          id: "broadband-telecom",
+          title: "电信宽带",
+          description: "稳定主线与专线接入场景。",
+          image: "./resource/环境02.jpg",
+          summary: "适合对稳定性和售后响应要求更高的门店。",
+          detail: "电信宽带提供稳定主线、专线增值和标准化开通流程，适合连锁和高频收银门店。",
+          leafPrefix: "telecom"
+        },
+        {
+          id: "broadband-mobile",
+          title: "移动宽带",
+          description: "门店开业与临时点位接入。",
+          image: "./resource/小票机.jpg",
+          summary: "适合快速开通和临时布点。",
+          detail: "移动宽带强调快速开通、迁移灵活和门店临时活动保障。",
+          leafPrefix: "mobile"
+        },
+        {
+          id: "broadband-tietong",
+          title: "铁通宽带",
+          description: "成本优先的接入方案。",
+          image: "./resource/上门服务工单.jpg",
+          summary: "适合预算敏感但仍需稳定接入的门店。",
+          detail: "铁通宽带侧重成本控制与基础网络覆盖，适合对带宽要求适中、注重预算控制的门店。",
+          leafPrefix: "tietong"
+        }
+      ]
+    ),
+    createBranch(
+      "monitor",
+      "监控网络",
+      "门店安防、画面回传和联网协同。",
+      "./resource/环境02.jpg",
+      "监控网络用于保障门店安防、收银区可视化与远程管理。",
+      [
+        {
+          id: "monitor-cctv",
+          title: "门店监控",
+          description: "收银区与出入口监控。",
+          image: "./resource/收银台02.jpg",
+          summary: "强调安全与可回放。",
+          detail: "用于收银区、出入口和仓库的安防管理。",
+          leafPrefix: "cctv"
+        },
+        {
+          id: "monitor-cloud",
+          title: "云回传",
+          description: "远程查看与云端保存。",
+          image: "./resource/环境01.jpg",
+          summary: "适合异地管理和巡店。",
+          detail: "云回传可将门店画面同步到云端，便于巡店与远程查看。",
+          leafPrefix: "cloud"
+        },
+        {
+          id: "monitor-smart",
+          title: "智能识别",
+          description: "异常提醒和重点识别。",
+          image: "./resource/上门服务工单.jpg",
+          summary: "关注异常提醒和管理效率。",
+          detail: "智能识别用于异常提醒、人员识别和重点事件追踪。",
+          leafPrefix: "smart"
+        }
+      ]
+    ),
+    createBranch(
+      "nav",
+      "门店导航",
+      "进店引导、桌台导航和顾客动线展示。",
+      "./resource/收银台02.jpg",
+      "门店导航帮助客户把进店、找台、排队和动线管理做成可视化方案。",
+      [
+        {
+          id: "nav-indoor",
+          title: "进店引导",
+          description: "门头与导视入口。",
+          image: "./resource/环境01.jpg",
+          summary: "适合门店导流与进店提示。",
+          detail: "用于门头提示、导视牌和进店分流。",
+          leafPrefix: "indoor"
+        },
+        {
+          id: "nav-table",
+          title: "桌台导航",
+          description: "找台与桌号展示。",
+          image: "./resource/环境02.jpg",
+          summary: "适合餐饮和茶饮门店。",
+          detail: "用于桌号展示、叫号联动和桌台引导。",
+          leafPrefix: "table"
+        },
+        {
+          id: "nav-queue",
+          title: "排队导航",
+          description: "叫号与排队提示。",
+          image: "./resource/上门服务工单.jpg",
+          summary: "适合高峰接待场景。",
+          detail: "用于前台叫号、排队提示和客流分流。",
+          leafPrefix: "queue"
+        }
+      ]
+    ),
+    createBranch(
+      "cashier",
+      "收银系统",
+      "前台收银、打印和扫码联动。",
+      "./resource/收银台01.jpg",
+      "收银系统聚焦前台快速收银、打印联动与扫码支付。",
+      [
+        {
+          id: "cashier-pos",
+          title: "收银终端",
+          description: "主机与收银位联动。",
+          image: "./resource/收银台02.jpg",
+          summary: "适合前台主收银台。",
+          detail: "收银终端帮助门店完成主收银位、打印和支付对接。",
+          leafPrefix: "pos"
+        },
+        {
+          id: "cashier-print",
+          title: "打印出单",
+          description: "小票与后厨联动。",
+          image: "./resource/小票机.jpg",
+          summary: "强调出单速度与稳定。",
+          detail: "打印出单负责订单、后厨和外卖单据输出。",
+          leafPrefix: "print"
+        },
+        {
+          id: "cashier-pay",
+          title: "扫码支付",
+          description: "聚合收款和营销联动。",
+          image: "./resource/收银台03.jpg",
+          summary: "适合需要多种支付方式的门店。",
+          detail: "扫码支付帮助门店统一管理微信、支付宝和会员余额。",
+          leafPrefix: "pay"
+        }
+      ]
+    ),
+    createBranch(
+      "hardware",
+      "配套硬件",
+      "小票机、称重设备和收银终端组合。",
+      "./resource/小票机.jpg",
+      "配套硬件包含小票机、称重设备、扫码盒和门店终端。",
+      [
+        {
+          id: "hardware-printer",
+          title: "小票机",
+          description: "出单和收据打印。",
+          image: "./resource/小票机02.jpg",
+          summary: "适合出单打印场景。",
+          detail: "用于门店收银小票、后厨分单和外卖单打印。",
+          leafPrefix: "printer"
+        },
+        {
+          id: "hardware-scale",
+          title: "称重设备",
+          description: "生鲜和茶饮称重。",
+          image: "./resource/称重&小票机.jpg",
+          summary: "适合称重计价门店。",
+          detail: "称重设备适用于生鲜、茶饮和按重量计价的门店。",
+          leafPrefix: "scale"
+        },
+        {
+          id: "hardware-terminal",
+          title: "门店终端",
+          description: "收银主机与显示设备。",
+          image: "./resource/收银台03.jpg",
+          summary: "适合前台终端配置。",
+          detail: "门店终端负责前台收银、订单展示和业务交互。",
+          leafPrefix: "terminal"
+        }
+      ]
+    ),
+    createBranch(
+      "poster",
+      "海报设计",
+      "活动页、门店海报和宣传物料输出。",
+      "./resource/上门服务工单.jpg",
+      "海报设计帮助门店完成活动表达、价格宣传和会员触达。",
+      [
+        {
+          id: "poster-store",
+          title: "门店海报",
+          description: "活动陈列与价格说明。",
+          image: "./resource/环境01.jpg",
+          summary: "适合门店活动宣传。",
+          detail: "围绕门店活动、节日促销和新品展示输出海报内容。",
+          leafPrefix: "store"
+        },
+        {
+          id: "poster-digital",
+          title: "电子海报",
+          description: "屏幕展示与轮播。",
+          image: "./resource/环境02.jpg",
+          summary: "适合门店电子屏展示。",
+          detail: "电子海报用于前台屏幕轮播、活动展示和品牌宣传。",
+          leafPrefix: "digital"
+        },
+        {
+          id: "poster-share",
+          title: "分享物料",
+          description: "转发图和社交素材。",
+          image: "./resource/收银台01.jpg",
+          summary: "适合销售转发和招商传播。",
+          detail: "用于客户转发、销售分享和招商物料输出。",
+          leafPrefix: "share"
+        }
+      ]
+    )
+  ];
+}
+
+function cloneBusinessTree(sourceTree) {
+  if (!Array.isArray(sourceTree)) {
+    return [];
+  }
+  return sourceTree.map((node) => ({
+    id: node.id || `business-${Math.random().toString(16).slice(2, 8)}`,
+    title: node.title || node.label || "未命名模块",
+    description: node.description || "",
+    image: node.image || node.iconImage || "",
+    badge: node.badge || "",
+    summary: node.summary || "",
+    detail: node.detail || "",
+    children: cloneBusinessTree(node.children)
+  }));
+}
+
+function buildBusinessItemsFromTree(tree) {
+  return cloneBusinessTree(tree).map((node) => ({
+    id: node.id,
+    label: node.title,
+    iconImage: node.image,
+    view: "services",
+    payload: { businessNodeId: node.id }
+  }));
+}
+
 function loadMiniConfig() {
   try {
     const raw = localStorage.getItem(MINI_CONFIG_KEY);
-    if (!raw) return cloneConfig(defaultMiniConfig);
+    if (!raw) {
+      const freshConfig = cloneConfig(defaultMiniConfig);
+      freshConfig.businessItems = buildBusinessItemsFromTree(freshConfig.businessTree);
+      return freshConfig;
+    }
     const parsed = JSON.parse(raw);
+    const businessTree = cloneBusinessTree(parsed.businessTree);
+    const mergedBusinessTree = businessTree.length ? businessTree : cloneBusinessTree(defaultMiniConfig.businessTree);
     const merged = {
       quickModules: mergeByKey(normalizeArray(parsed.quickModules, defaultMiniConfig.quickModules), defaultMiniConfig.quickModules, "id"),
       caseTiles: mergeByKey(normalizeArray(parsed.caseTiles, defaultMiniConfig.caseTiles), defaultMiniConfig.caseTiles, "id"),
-      businessItems: mergeByKey(normalizeArray(parsed.businessItems, defaultMiniConfig.businessItems), defaultMiniConfig.businessItems, "id"),
+      businessTree: mergedBusinessTree,
+      businessItems: buildBusinessItemsFromTree(mergedBusinessTree),
       tabBar: mergeByKey(normalizeArray(parsed.tabBar, defaultMiniConfig.tabBar), defaultMiniConfig.tabBar, "tab")
     };
     if (JSON.stringify(parsed) !== JSON.stringify(merged)) {
@@ -109,6 +414,8 @@ function loadMiniConfig() {
 }
 
 function saveMiniConfig(nextConfig) {
+  nextConfig.businessTree = cloneBusinessTree(nextConfig.businessTree);
+  nextConfig.businessItems = buildBusinessItemsFromTree(nextConfig.businessTree);
   localStorage.setItem(MINI_CONFIG_KEY, JSON.stringify(nextConfig));
 }
 
@@ -279,6 +586,8 @@ const state = {
   caseId: "zhedinghui",
   category: "全部",
   scopeCategory: "全部",
+  businessPath: [],
+  businessNodeId: "",
   heroIndex: 0,
   touchStartX: 0,
   helpType: "案例咨询",
@@ -300,6 +609,60 @@ function caseById(id) {
   return cases.find((item) => item.id === id) || cases[0];
 }
 
+function flattenBusinessTree(tree = miniConfig.businessTree, path = []) {
+  return (tree || []).flatMap((node) => {
+    const currentPath = [...path, node.id];
+    return [{ node, path: currentPath }, ...flattenBusinessTree(node.children, currentPath)];
+  });
+}
+
+function businessEntryById(id) {
+  if (!id) {
+    return null;
+  }
+  return flattenBusinessTree().find((entry) => entry.node.id === id) || null;
+}
+
+function businessNodeByPath(path = state.businessPath) {
+  let nodes = miniConfig.businessTree || [];
+  let current = null;
+  for (const id of path) {
+    current = nodes.find((node) => node.id === id);
+    if (!current) {
+      return null;
+    }
+    nodes = current.children || [];
+  }
+  return current;
+}
+
+function businessCurrentChildren() {
+  const current = businessNodeByPath();
+  return current ? (current.children || []) : (miniConfig.businessTree || []);
+}
+
+function openBusinessNode(id) {
+  const entry = businessEntryById(id);
+  if (!entry) {
+    showToast("未找到该业务模块");
+    return;
+  }
+  setView("services", { businessPath: entry.path, businessNodeId: id });
+}
+
+function backBusinessLevel() {
+  if (!state.businessPath.length) {
+    setView("home");
+    return;
+  }
+  const nextPath = state.businessPath.slice(0, -1);
+  setView("services", {
+    businessPath: nextPath,
+    businessNodeId: nextPath[nextPath.length - 1] || "",
+    resetBusiness: !nextPath.length
+  });
+}
+
 function showToast(message) {
   toast.textContent = message;
   toast.hidden = false;
@@ -311,6 +674,19 @@ function showToast(message) {
 
 function setView(view, payload = {}) {
   Object.assign(state, payload, { view });
+  if (view === "services") {
+    if (payload.resetBusiness) {
+      state.businessPath = [];
+      state.businessNodeId = "";
+    } else if (payload.businessPath) {
+      state.businessPath = payload.businessPath;
+      state.businessNodeId = payload.businessNodeId || payload.businessPath[payload.businessPath.length - 1] || "";
+    } else if (payload.businessNodeId) {
+      const entry = businessEntryById(payload.businessNodeId);
+      state.businessPath = entry ? entry.path : [];
+      state.businessNodeId = payload.businessNodeId;
+    }
+  }
   render();
 }
 
@@ -402,7 +778,7 @@ function renderHome() {
         <h2>主营业务</h2>
         <div class="business-grid">
           ${miniConfig.businessItems.map((item) => `
-            <button class="business-pill" onclick="invokeConfiguredView('${item.view}', '${actionPayloadAttr(item.payload)}')">
+            <button class="business-pill" onclick="openBusinessNode('${item.payload?.businessNodeId || item.id}')">
               ${renderBusinessImage(item)}
               <span>${item.label}</span>
             </button>
@@ -598,32 +974,78 @@ function renderDetail() {
 }
 
 function renderServices() {
-  const scopeTitle = state.scopeCategory === "全部" ? "业务范围" : `${state.scopeCategory}分类`;
+  const autoEntry = state.businessNodeId && !state.businessPath.length ? businessEntryById(state.businessNodeId) : null;
+  if (autoEntry && autoEntry.path.length) {
+    state.businessPath = autoEntry.path;
+  }
+  const rootNode = state.businessPath.length ? businessNodeByPath() : null;
+  const levelNodes = businessCurrentChildren();
+  const levelIndex = Math.min(state.businessPath.length + 1, 5);
+  const title = rootNode ? rootNode.title : "主营业务";
+  const description = rootNode ? rootNode.detail || rootNode.description : "点击模块进入二级页面，再逐级下钻查看更细的业务套餐。";
+  const pathTrail = [{ id: "root", title: "主营业务" }];
+  let nodes = miniConfig.businessTree || [];
+  state.businessPath.forEach((id) => {
+    const current = nodes.find((item) => item.id === id);
+    if (!current) {
+      return;
+    }
+    pathTrail.push({ id: current.id, title: current.title });
+    nodes = current.children || [];
+  });
   app.innerHTML = `
-    <section class="section">
-      <article class="service-panel">
-        <h2>${scopeTitle}</h2>
-        <p class="section-note">点击业务分类后进入对应模块，后台修改后会同步到这里。</p>
-        <div class="service-chip-grid">
-          ${miniConfig.businessItems.map((item) => `
-            <button class="service-chip ${state.scopeCategory === item.label ? "active" : ""}" onclick="invokeConfiguredView('scope', '${actionPayloadAttr({ scopeCategory: item.label })}')">${item.label}</button>
-          `).join("")}
+    <section class="service-panel business-tree-panel">
+      <div class="business-tree-head">
+        <div>
+          <span class="eyebrow">主营业务</span>
+          <h2>${title}</h2>
+          <p class="section-note">${description}</p>
         </div>
-      </article>
+      <div class="business-tree-actions">
+          <button class="ghost-btn" onclick="backBusinessLevel()">返回上级</button>
+          <button class="primary-btn" onclick="setView('help')">咨询顾问</button>
+        </div>
+      </div>
+      <div class="business-breadcrumb">
+        ${pathTrail.map((item, index) => `
+          <button class="crumb ${index === pathTrail.length - 1 ? "active" : ""}" onclick="${index === 0 ? "setView('services', { resetBusiness: true })" : `openBusinessNode('${item.id}')`}">${item.title}</button>
+        `).join("")}
+      </div>
+      <div class="business-level-meta">
+        <span>当前层级：第 ${levelIndex} 级</span>
+        <span>最大层级：5 级</span>
+      </div>
     </section>
+
     <section class="section service-stack">
-      ${scopeItems(state.scopeCategory).map((service) => `
-        <article class="service-card">
-          <img class="service-thumb" src="${service.image}" alt="${service.title}">
+      ${levelNodes.map((node) => `
+        <article class="service-card business-node-card">
+          <img class="service-thumb" src="${node.image || "./resource/收银台01.jpg"}" alt="${node.title}">
           <div class="service-card-body">
-            <h3>${service.title}</h3>
-            <p>${service.desc}</p>
+            <div class="business-node-head">
+              <div>
+                <h3>${node.title}</h3>
+                <p>${node.description || node.summary || ""}</p>
+              </div>
+              <span class="status-pill">${node.badge || `第 ${state.businessPath.length + 1} 级`}</span>
+            </div>
+            <div class="tag-row">
+              <span class="tag">${node.children && node.children.length ? `${node.children.length} 个下级` : "套餐内容"}</span>
+              <span class="tag">${node.summary || "可点击查看下一层"}</span>
+            </div>
             <div class="cta-row service-cta">
-              <button class="ghost-btn" onclick="setView('help')">立即咨询</button>
+              <button class="primary-btn" onclick="${node.children && node.children.length ? `openBusinessNode('${node.id}')` : "setView('help')"}">${node.children && node.children.length ? "进入下一级" : "立即咨询"}</button>
+              <button class="ghost-btn" onclick="showToast('${node.title} 已加入咨询记录')">收藏</button>
             </div>
           </div>
         </article>
       `).join("")}
+      ${!levelNodes.length ? `
+        <article class="notice-card business-empty">
+          <h3>暂无下级内容</h3>
+          <p>该层级暂时没有配置子节点，请在管理端补充内容。</p>
+        </article>
+      ` : ""}
     </section>
   `;
 }
@@ -756,7 +1178,7 @@ function render() {
     detail: { title: "案例详情", render: renderDetail },
     company: { title: "公司介绍", render: renderCompany },
     scope: { title: "业务范围", render: renderServices },
-    services: { title: "业务范围", render: renderServices },
+    services: { title: state.businessPath.length ? "主营业务详情" : "主营业务", render: renderServices },
     help: { title: "咨询顾问", render: renderHelp },
     mine: { title: "我的", render: renderMine }
   };
@@ -823,6 +1245,10 @@ backBtn.addEventListener("click", () => {
     window.location.href = "./index.html";
     return;
   }
+  if (state.view === "services" && state.businessPath.length) {
+    backBusinessLevel();
+    return;
+  }
   if (state.view === "detail") {
     setView("cases");
     return;
@@ -840,6 +1266,8 @@ document.querySelectorAll(".tabbar button").forEach((button) => {
 window.setHeroSlide = setHeroSlide;
 window.setView = setView;
 window.setCase = setCase;
+window.openBusinessNode = openBusinessNode;
+window.backBusinessLevel = backBusinessLevel;
 window.handleHeroTouchStart = handleHeroTouchStart;
 window.handleHeroTouchEnd = handleHeroTouchEnd;
 window.showToast = showToast;

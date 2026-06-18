@@ -421,6 +421,79 @@ body:not([data-view="home"]) .app-view {
   margin-top: 12px;
 }
 
+.business-tree-panel {
+  padding: 16px 14px;
+  text-align: left;
+}
+
+.business-tree-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.business-tree-head h2 {
+  margin-top: 6px;
+}
+
+.business-tree-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.business-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.crumb {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(244, 240, 234, 0.92);
+  font-size: 12px;
+}
+
+.crumb.active {
+  color: #fff;
+  background: var(--brand);
+}
+
+.business-level-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.business-node-card {
+  text-align: left;
+}
+
+.business-node-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.business-node-head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.business-empty {
+  padding: 16px;
+}
+
 .business-pill,
 .service-chip {
   min-height: 120px;
