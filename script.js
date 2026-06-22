@@ -4,11 +4,6 @@ const ANALYTICS_CONFIG = {
   productionDomain: "",
 };
 
-const THEME_OPTIONS = {
-  "theme-light-2": "./theme-light-2.css",
-  "theme-light-3": "./theme-light-3.css",
-};
-
 function initNav() {
   const toggle = document.querySelector("[data-nav-toggle]");
   const nav = document.querySelector("[data-nav]");
@@ -78,38 +73,6 @@ function initContactForm() {
     status.textContent = "需求已记录。本静态版本未连接后端，正式上线时可接入线索收集接口。";
     form.reset();
   });
-}
-
-function initThemeSwitcher() {
-  const switcher = document.querySelector("[data-theme-switcher]");
-  const stylesheet = document.querySelector("#theme-stylesheet");
-  if (!switcher || !stylesheet) return;
-
-  const buttons = Array.from(switcher.querySelectorAll("[data-theme-option]"));
-  const storageKey = switcher.dataset.themeStorageKey || "homeTheme";
-  const defaultTheme = switcher.dataset.themeDefault || "theme-light-2";
-  const savedTheme = window.localStorage.getItem(storageKey);
-  const initialTheme = savedTheme && THEME_OPTIONS[savedTheme] ? savedTheme : defaultTheme;
-
-  function applyTheme(theme) {
-    if (!THEME_OPTIONS[theme]) return;
-    Object.keys(THEME_OPTIONS).forEach((name) => document.body.classList.toggle(name, name === theme));
-    stylesheet.setAttribute("href", THEME_OPTIONS[theme]);
-    buttons.forEach((button) => {
-      const isActive = button.dataset.themeOption === theme;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-pressed", String(isActive));
-    });
-    window.localStorage.setItem(storageKey, theme);
-  }
-
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      applyTheme(button.dataset.themeOption);
-    });
-  });
-
-  applyTheme(initialTheme);
 }
 
 function initHeroShowcase() {
@@ -232,7 +195,6 @@ function initAnalytics() {
 document.addEventListener("DOMContentLoaded", () => {
   initNav();
   initBrandBounce();
-  initThemeSwitcher();
   initContactForm();
   initHeroShowcase();
   initHeroRotator();
