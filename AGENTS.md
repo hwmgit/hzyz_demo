@@ -34,10 +34,12 @@
   - 商业运营页：商业空间运维平台、商业运营平台、软硬件集成系统。
   - 关于页：以杭州盈泽为主体，资料中的瑞维体系经验仅作为协同能力基础表达，避免主体混同。
 - 公司信息仍为占位，正式上线前需要替换真实主体信息。
+- 首页主题版本已收敛为 2 个浅色方案：`theme-light-2.css`（云湖蓝白，默认）和 `theme-light-3.css`（晨雾银蓝）。首页通过 `styles-base.css` + 当前主题 CSS 组合加载；旧的深色和其它浅色候选文件已按规则移动到 `delete/`，不要再新增引用。
 
 ## 3. 重要注意事项
 
 - 修改 v5 前先读取本目录 `DESIGN.md`。
+- 修改首页主题前先确认 `index.html` 的 `#theme-stylesheet`、`script.js` 的 `THEME_OPTIONS`、以及 `theme-switcher` 中按钮列表三处一致。
 - 首页核心业务模块当前按需求使用压缩后的 `back.png` 模块图，出海业务模块单独使用 `assets/out_cn.jpeg`；不要改回旧版四张模块图。该约定不适用于首页首屏背景，首屏背景保持 CSS 渐变循环。
 - `hero-showcase` 由 `script.js` 的 `initHeroShowcase()` 在运行时克隆每条轨道卡片并持续更新 `transform`，用于接近有赞的滚动效果；克隆卡片需保持 `aria-hidden="true"`，避免读屏重复朗读。
 - `showcase-lane` 的 `transform` 由 JS 每帧控制，禁止再给 `.hero-showcase:hover .showcase-lane` 或 lane 本身添加 `transition: transform`，否则循环回绕时会出现掉落或反向滚动错觉。

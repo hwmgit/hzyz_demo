@@ -5,15 +5,8 @@ const ANALYTICS_CONFIG = {
 };
 
 const THEME_OPTIONS = {
-  "theme-light-1": "./theme-light-1.css",
   "theme-light-2": "./theme-light-2.css",
   "theme-light-3": "./theme-light-3.css",
-  "theme-light-4": "./theme-light-4.css",
-  "theme-dark-1": "./theme-dark-1.css",
-  "theme-dark-2": "./theme-dark-2.css",
-  "theme-dark-3": "./theme-dark-3.css",
-  "theme-dark-4": "./theme-dark-4.css",
-  "theme-dark-5": "./theme-dark-5.css",
 };
 
 function initNav() {
@@ -94,7 +87,7 @@ function initThemeSwitcher() {
 
   const buttons = Array.from(switcher.querySelectorAll("[data-theme-option]"));
   const storageKey = switcher.dataset.themeStorageKey || "homeTheme";
-  const defaultTheme = switcher.dataset.themeDefault || (document.body.classList.contains("theme-light-1") ? "theme-light-1" : "theme-dark-1");
+  const defaultTheme = switcher.dataset.themeDefault || "theme-light-2";
   const savedTheme = window.localStorage.getItem(storageKey);
   const initialTheme = savedTheme && THEME_OPTIONS[savedTheme] ? savedTheme : defaultTheme;
 
