@@ -588,6 +588,7 @@ const state = {
   scopeCategory: "全部",
   businessPath: [],
   businessNodeId: "",
+  businessDisplayMode: "list",
   heroIndex: 0,
   touchStartX: 0,
   helpType: "案例咨询",
@@ -1001,7 +1002,11 @@ function renderServices() {
           <h2>${title}</h2>
           <p class="section-note">${description}</p>
         </div>
-      <div class="business-tree-actions">
+        <div class="business-tree-actions">
+          <div class="display-switch" role="tablist" aria-label="业务展示形式切换">
+            <button class="display-switch-btn ${state.businessDisplayMode === "grid" ? "active" : ""}" type="button" onclick="setBusinessDisplayMode('grid')">九宫格</button>
+            <button class="display-switch-btn ${state.businessDisplayMode === "list" ? "active" : ""}" type="button" onclick="setBusinessDisplayMode('list')">列表</button>
+          </div>
           <button class="ghost-btn" onclick="backBusinessLevel()">返回上级</button>
           <button class="primary-btn" onclick="setView('help')">咨询顾问</button>
         </div>
@@ -1017,29 +1022,8 @@ function renderServices() {
       </div>
     </section>
 
-    <section class="section service-stack">
-      ${levelNodes.map((node) => `
-        <article class="service-card business-node-card">
-          <img class="service-thumb" src="${node.image || "./resource/收银台01.jpg"}" alt="${node.title}">
-          <div class="service-card-body">
-            <div class="business-node-head">
-              <div>
-                <h3>${node.title}</h3>
-                <p>${node.description || node.summary || ""}</p>
-              </div>
-              <span class="status-pill">${node.badge || `第 ${state.businessPath.length + 1} 级`}</span>
-            </div>
-            <div class="tag-row">
-              <span class="tag">${node.children && node.children.length ? `${node.children.length} 个下级` : "套餐内容"}</span>
-              <span class="tag">${node.summary || "可点击查看下一层"}</span>
-            </div>
-            <div class="cta-row service-cta">
-              <button class="primary-btn" onclick="${node.children && node.children.length ? `openBusinessNode('${node.id}')` : "setView('help')"}">${node.children && node.children.length ? "进入下一级" : "立即咨询"}</button>
-              <button class="ghost-btn" onclick="showToast('${node.title} 已加入咨询记录')">收藏</button>
-            </div>
-          </div>
-        </article>
-      `).join("")}
+    <section class="section ${state.businessDisplayMode === "grid" ? "business-grid-view" : "service-stack"}">
+      ${levelNodes.map((node) => renderBusinessNode(node)).join("")}
       ${!levelNodes.length ? `
         <article class="notice-card business-empty">
           <h3>暂无下级内容</h3>
@@ -1048,6 +1032,59 @@ function renderServices() {
       ` : ""}
     </section>
   `;
+}
+
+function renderBusinessNode(node) {
+  const hasChildren = node.children && node.children.length;
+  const actionText = hasChildren ? "进入下一级" : "立即咨询";
+  const actionHandler = hasChildren ? `openBusinessNode('${node.id}')` : "setView('help')";
+  if (state.businessDisplayMode === "grid") {
+    return `
+      <article class="service-card business-node-card business-node-grid">
+        <button class="business-node-grid-body" onclick="${actionHandler}">
+          <img class="service-thumb business-grid-thumb" src="${node.image || "./resource/收银台01.jpg"}" alt="${node.title}">
+          <div class="business-node-grid-copy">
+            <strong>${node.title}</strong>
+            <span>${node.summary || node.description || "可点击查看下一层"}</span>
+          </div>
+        </button>
+        <div class="business-node-grid-meta">
+          <span class="status-pill">${node.badge || `第 ${state.businessPath.length + 1} 级`}</span>
+          <span class="tag">${hasChildren ? `${node.children.length} 个下级` : "套餐内容"}</span>
+        </div>
+      </article>
+    `;
+  }
+  return `
+    <article class="service-card business-node-card">
+      <img class="service-thumb" src="${node.image || "./resource/收银台01.jpg"}" alt="${node.title}">
+      <div class="service-card-body">
+        <div class="business-node-head">
+          <div>
+            <h3>${node.title}</h3>
+            <p>${node.description || node.summary || ""}</p>
+          </div>
+          <span class="status-pill">${node.badge || `第 ${state.businessPath.length + 1} 级`}</span>
+        </div>
+        <div class="tag-row">
+          <span class="tag">${hasChildren ? `${node.children.length} 个下级` : "套餐内容"}</span>
+          <span class="tag">${node.summary || "可点击查看下一层"}</span>
+        </div>
+        <div class="cta-row service-cta">
+          <button class="primary-btn" onclick="${actionHandler}">${actionText}</button>
+          <button class="ghost-btn" onclick="showToast('${node.title} 已加入咨询记录')">收藏</button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function setBusinessDisplayMode(mode) {
+  if (mode !== "grid" && mode !== "list") {
+    return;
+  }
+  state.businessDisplayMode = mode;
+  render();
 }
 
 function renderCompany() {
@@ -1268,6 +1305,7 @@ window.setView = setView;
 window.setCase = setCase;
 window.openBusinessNode = openBusinessNode;
 window.backBusinessLevel = backBusinessLevel;
+window.setBusinessDisplayMode = setBusinessDisplayMode;
 window.handleHeroTouchStart = handleHeroTouchStart;
 window.handleHeroTouchEnd = handleHeroTouchEnd;
 window.showToast = showToast;
