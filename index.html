@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>缴费页</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --bg-soft: #ece3d5;
+      --ink: #2c241c;
+      --muted: #776b5e;
+      --line: rgba(124, 98, 67, 0.18);
+      --panel: rgba(255, 251, 245, 0.92);
+      --accent: #8b6944;
+      --accent-dark: #6f5030;
+      --good: #4c7b62;
+      --warn: #cc8b35;
+      --bad: #b85143;
+      --shadow: 0 20px 60px rgba(83, 66, 46, 0.12);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255, 251, 245, 0.95), transparent 24rem),
+        radial-gradient(circle at 86% 10%, rgba(204, 139, 53, 0.13), transparent 22rem),
+        linear-gradient(135deg, var(--bg), var(--bg-soft));
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background-image:
+        linear-gradient(rgba(44, 36, 28, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(44, 36, 28, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .app {
+      width: min(720px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 20px 0 32px;
+      position: relative;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+    .eyebrow {
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 8vw, 42px);
+      line-height: 1.08;
+    }
+    .hero p, .hint {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+    .hero p { margin-top: 14px; }
+    .panel { padding: 18px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    h2 { font-size: 20px; }
+    h3 { font-size: 17px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      background: rgba(119, 107, 94, 0.12);
+      color: var(--muted);
+    }
+    .badge.good { background: rgba(76, 123, 98, 0.14); color: var(--good); }
+    .badge.warn { background: rgba(204, 139, 53, 0.15); color: var(--warn); }
+    .badge.bad { background: rgba(184, 81, 67, 0.13); color: var(--bad); }
+    .form-grid { display: grid; gap: 12px; }
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+    input {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 251, 245, 0.78);
+      padding: 0 12px;
+      outline: none;
+    }
+    input:focus {
+      border-color: rgba(139, 105, 68, 0.62);
+      box-shadow: 0 0 0 4px rgba(139, 105, 68, 0.12);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn {
+      min-height: 44px;
+      border-radius: 12px;
+      padding: 0 16px;
+      color: #fffaf2;
+      background: var(--accent);
+      font-weight: 800;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      background: var(--accent-dark);
+      box-shadow: 0 12px 28px rgba(111, 80, 48, 0.18);
+    }
+    .btn.secondary {
+      color: var(--accent-dark);
+      background: rgba(139, 105, 68, 0.12);
+    }
+    .btn.good { background: var(--good); }
+    .message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.72);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .message.good { color: var(--good); border-color: rgba(76, 123, 98, 0.28); background: rgba(76, 123, 98, 0.09); }
+    .message.bad { color: var(--bad); border-color: rgba(184, 81, 67, 0.28); background: rgba(184, 81, 67, 0.09); }
+    .message.warn { color: var(--warn); border-color: rgba(204, 139, 53, 0.3); background: rgba(204, 139, 53, 0.11); }
+    .pay-card {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.72);
+      overflow: hidden;
+    }
+    .pay-title, .fee-row, .total-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .pay-title {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .fee-row {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(124, 98, 67, 0.12);
+    }
+    .fee-row small, .pay-title small {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
+    }
+    .total-line {
+      padding: 16px;
+      background: rgba(139, 105, 68, 0.08);
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(44, 36, 28, 0.38);
+      z-index: 20;
+    }
+    .modal.show { display: grid; }
+    .modal-card {
+      width: min(440px, 100%);
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      box-shadow: 0 28px 90px rgba(44, 36, 28, 0.24);
+      padding: 22px;
+    }
+    .pay-options {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .pay-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.72);
+    }
+    @media (max-width: 560px) {
+      .app { width: min(100% - 16px, 720px); padding-top: 12px; }
+      .hero, .panel { padding: 16px; border-radius: 18px; }
+      .section-head { display: block; }
+      .actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">缴费服务</div>
+      <h1>学生缴费信息核验</h1>
+      <p>请输入学生姓名与身份证号。系统会按后台已登记的学生数据进行核验，通过后展示该学生关联的待缴项目。</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>身份核验</h2>
+          <p class="hint">姓名和身份证号必须与学校登记信息完全一致。</p>
+        </div>
+        <span class="badge warn" id="parentStateBadge">待核验</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="studentNameInput">学生姓名</label>
+          <input id="studentNameInput" autocomplete="off" placeholder="例如：林子涵">
+        </div>
+        <div class="field">
+          <label for="studentIdInput">身份证号</label>
+          <input id="studentIdInput" autocomplete="off" placeholder="例如：330102201406180123">
+        </div>
+        <div class="actions">
+          <button class="btn" id="verifyBtn">核验并查看费用</button>
+          <button class="btn secondary" id="fillDemoBtn">填入示例学生</button>
+        </div>
+      </div>
+      <div id="verifyMessage" class="message warn">请填写学生姓名和身份证号。</div>
+      <div id="paymentDetail"></div>
+    </section>
+  </main>
+
+  <div class="modal" id="payModal" role="dialog" aria-modal="true" aria-label="聚合支付演示">
+    <div class="modal-card">
+      <h3>聚合支付演示</h3>
+      <p class="hint">此处模拟客户指定聚合支付通道，不发起真实扣款。</p>
+      <div class="pay-options">
+        <div class="pay-option"><strong>微信支付</strong><span class="badge">可选</span></div>
+        <div class="pay-option"><strong>支付宝</strong><span class="badge">可选</span></div>
+        <div class="pay-option"><strong>银联云闪付</strong><span class="badge">可选</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn good" id="confirmPayBtn">模拟支付成功</button>
+        <button class="btn secondary" id="closePayBtn">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "eduFeeDemoState";
+    const analyticsConfig = { productionDomain: "", websiteId: "", scriptUrl: "" };
+    const initialState = {
+      students: [
+        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "初一 2 班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
+        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "初二 1 班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
+      ],
+      feeItems: [
+        { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680, enabled: true },
+        { id: "fee-002", name: "住宿费", cycle: "2026 春季", amount: 2400, enabled: true },
+        { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520, enabled: true }
+      ],
+      payments: {
+        "stu-002": { status: "paid", paidAt: "2026-06-24 10:18", channel: "聚合支付演示通道" }
+      },
+      selectedStudentId: null
+    };
+
+    let state = loadState();
+    const money = new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 });
+    const dom = {
+      studentNameInput: document.getElementById("studentNameInput"),
+      studentIdInput: document.getElementById("studentIdInput"),
+      verifyBtn: document.getElementById("verifyBtn"),
+      fillDemoBtn: document.getElementById("fillDemoBtn"),
+      verifyMessage: document.getElementById("verifyMessage"),
+      parentStateBadge: document.getElementById("parentStateBadge"),
+      paymentDetail: document.getElementById("paymentDetail"),
+      payModal: document.getElementById("payModal"),
+      confirmPayBtn: document.getElementById("confirmPayBtn"),
+      closePayBtn: document.getElementById("closePayBtn")
+    };
+
+    function enableAnalytics() {
+      const host = window.location.hostname;
+      const isLocal = ["localhost", "127.0.0.1", ""].includes(host);
+      if (isLocal || !analyticsConfig.productionDomain || !analyticsConfig.websiteId || !analyticsConfig.scriptUrl) return;
+      if (host !== analyticsConfig.productionDomain) return;
+      const script = document.createElement("script");
+      script.defer = true;
+      script.src = analyticsConfig.scriptUrl;
+      script.dataset.websiteId = analyticsConfig.websiteId;
+      document.head.appendChild(script);
+    }
+
+    function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : clone(initialState);
+      } catch {
+        return clone(initialState);
+      }
+    }
+    function saveState() {
+      const saved = loadState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...saved, ...state, selectedStudentId: state.selectedStudentId }));
+    }
+    function activeFees() { return state.feeItems.filter((item) => item.enabled); }
+    function studentFees(student) {
+      const ids = student.feeIds && student.feeIds.length ? student.feeIds : activeFees().map((item) => item.id);
+      return ids.map((id) => state.feeItems.find((item) => item.id === id)).filter(Boolean).filter((item) => item.enabled);
+    }
+    function totalDue(student) {
+      return studentFees(student).reduce((sum, item) => sum + item.amount, 0);
+    }
+    function paymentFor(studentId) { return state.payments[studentId] || { status: "pending", paidAt: "", channel: "" }; }
+    function maskIdNo(idNo) { return idNo.length <= 6 ? idNo : `${idNo.slice(0, 4)}**********${idNo.slice(-4)}`; }
+    function nowText() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+    function setMessage(element, type, text) {
+      element.className = `message ${type || ""}`.trim();
+      element.textContent = text;
+    }
+
+    function verifyStudent() {
+      const name = dom.studentNameInput.value.trim();
+      const idNo = dom.studentIdInput.value.trim();
+      state = loadState();
+      if (!name || !idNo) {
+        state.selectedStudentId = null;
+        renderParentDetail();
+        setMessage(dom.verifyMessage, "warn", "请填写学生姓名和身份证号。");
+        return;
+      }
+      const sameName = state.students.find((student) => student.name === name);
+      if (!sameName) {
+        state.selectedStudentId = null;
+        renderParentDetail();
+        setMessage(dom.verifyMessage, "bad", "未找到该学生缴费信息，请确认学校已登记该学生。");
+        return;
+      }
+      if (sameName.idNo !== idNo) {
+        state.selectedStudentId = null;
+        renderParentDetail();
+        setMessage(dom.verifyMessage, "bad", "身份信息不匹配：学生姓名存在，但身份证号与学校登记信息不一致。");
+        return;
+      }
+      state.selectedStudentId = sameName.id;
+      saveState();
+      setMessage(dom.verifyMessage, "good", `核验通过：已关联 ${sameName.className} ${sameName.name} 的缴费信息。`);
+      renderParentDetail();
+    }
+
+    function renderParentDetail() {
+      const student = state.students.find((item) => item.id === state.selectedStudentId);
+      if (!student) {
+        dom.parentStateBadge.className = "badge warn";
+        dom.parentStateBadge.textContent = "待核验";
+        dom.paymentDetail.innerHTML = "";
+        return;
+      }
+      const payment = paymentFor(student.id);
+      const isPaid = payment.status === "paid";
+      dom.parentStateBadge.className = isPaid ? "badge good" : "badge warn";
+      dom.parentStateBadge.textContent = isPaid ? "已支付" : "待支付";
+      const feeRows = studentFees(student).map((item) => `
+        <div class="fee-row">
+          <div><strong>${item.name}</strong><small>${item.cycle}</small></div>
+          <strong>${money.format(item.amount)}</strong>
+        </div>
+      `).join("") || `<div class="fee-row"><div><strong>暂无启用收费项目</strong><small>请先在后台配置并关联项目。</small></div><strong>¥0</strong></div>`;
+      dom.paymentDetail.innerHTML = `
+        <div class="pay-card">
+          <div class="pay-title">
+            <div><strong>${student.name}</strong><small>${student.className} · ${maskIdNo(student.idNo)}</small></div>
+            <span class="${isPaid ? "badge good" : "badge warn"}">${isPaid ? "已完成缴费" : "待完成缴费"}</span>
+          </div>
+          <div>${feeRows}</div>
+          <div class="total-line"><span>合计应缴</span><span>${money.format(totalDue(student))}</span></div>
+          <div style="padding:16px;">
+            ${isPaid ? `<div class="message good" style="margin:0;">缴费已完成。支付时间：${payment.paidAt}，支付通道：${payment.channel}。</div>` : `<button class="btn good" id="openPayBtn" style="width:100%;">确认并进入聚合支付</button>`}
+          </div>
+        </div>
+      `;
+      const openPayBtn = document.getElementById("openPayBtn");
+      if (openPayBtn) openPayBtn.addEventListener("click", () => dom.payModal.classList.add("show"));
+    }
+
+    function payCurrentStudent() {
+      const student = state.students.find((item) => item.id === state.selectedStudentId);
+      if (!student) {
+        dom.payModal.classList.remove("show");
+        return;
+      }
+      state.payments[student.id] = { status: "paid", paidAt: nowText(), channel: "聚合支付演示通道" };
+      saveState();
+      dom.payModal.classList.remove("show");
+      setMessage(dom.verifyMessage, "good", `${student.name} 已完成模拟支付，缴费状态已同步更新。`);
+      renderParentDetail();
+    }
+
+    dom.verifyBtn.addEventListener("click", verifyStudent);
+    dom.fillDemoBtn.addEventListener("click", () => {
+      state = loadState();
+      const student = state.students[0];
+      dom.studentNameInput.value = student.name;
+      dom.studentIdInput.value = student.idNo;
+      verifyStudent();
+    });
+    dom.confirmPayBtn.addEventListener("click", payCurrentStudent);
+    dom.closePayBtn.addEventListener("click", () => dom.payModal.classList.remove("show"));
+    dom.payModal.addEventListener("click", (event) => {
+      if (event.target === dom.payModal) dom.payModal.classList.remove("show");
+    });
+    window.addEventListener("storage", () => {
+      state = loadState();
+      renderParentDetail();
+    });
+
+    enableAnalytics();
+    renderParentDetail();
+  </script>
+</body>
+</html>

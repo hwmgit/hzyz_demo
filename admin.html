@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>收费管理后台</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --bg-soft: #ece3d5;
+      --ink: #2c241c;
+      --muted: #776b5e;
+      --line: rgba(124, 98, 67, 0.18);
+      --panel: rgba(255, 251, 245, 0.9);
+      --accent: #8b6944;
+      --accent-dark: #6f5030;
+      --good: #4c7b62;
+      --warn: #cc8b35;
+      --bad: #b85143;
+      --shadow: 0 20px 60px rgba(83, 66, 46, 0.12);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 251, 245, 0.9), transparent 24rem),
+        radial-gradient(circle at 82% 8%, rgba(204, 139, 53, 0.12), transparent 24rem),
+        linear-gradient(135deg, var(--bg), var(--bg-soft));
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background-image:
+        linear-gradient(rgba(44, 36, 28, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(44, 36, 28, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+    .app {
+      width: min(1440px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+      position: relative;
+    }
+    .shell {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .sidebar, .content, .card, .subcard {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .sidebar {
+      position: sticky;
+      top: 16px;
+      padding: 16px;
+    }
+    .brand {
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand .eyebrow {
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .brand h1 { margin: 0; font-size: 24px; line-height: 1.1; }
+    .menu { display: grid; gap: 8px; }
+    .menu button {
+      width: 100%;
+      text-align: left;
+      min-height: 44px;
+      border-radius: 12px;
+      padding: 0 12px;
+      background: rgba(255, 251, 245, 0.68);
+      color: var(--ink);
+      border: 1px solid transparent;
+      font-weight: 700;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    .menu button:hover { transform: translateX(1px); }
+    .menu button.active {
+      background: rgba(139, 105, 68, 0.14);
+      border-color: rgba(139, 105, 68, 0.22);
+      color: var(--accent-dark);
+    }
+    .sidebar-note {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(139, 105, 68, 0.08);
+      border: 1px dashed rgba(139, 105, 68, 0.26);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .content {
+      padding: 18px;
+      min-width: 0;
+    }
+    .page { display: none; gap: 16px; }
+    .page.active { display: grid; }
+    .hero, .card, .subcard {
+      background: rgba(255, 251, 245, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 12px 36px rgba(83, 66, 46, 0.08);
+    }
+    .hero {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-end;
+    }
+    .eyebrow {
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    h2, h3, p { margin: 0; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 17px; }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 6px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .kpi {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.7);
+    }
+    .kpi small { display: block; color: var(--muted); margin-bottom: 10px; }
+    .kpi strong { font-size: 24px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .subcard { padding: 16px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      min-height: 42px;
+      border-radius: 12px;
+      padding: 0 16px;
+      color: #fffaf2;
+      background: var(--accent);
+      font-weight: 800;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      background: var(--accent-dark);
+      box-shadow: 0 12px 28px rgba(111, 80, 48, 0.18);
+    }
+    .btn.secondary { color: var(--accent-dark); background: rgba(139, 105, 68, 0.12); }
+    .btn.good { background: var(--good); }
+    .btn.bad { background: var(--bad); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      background: rgba(119, 107, 94, 0.12);
+      color: var(--muted);
+    }
+    .badge.good { background: rgba(76, 123, 98, 0.14); color: var(--good); }
+    .badge.warn { background: rgba(204, 139, 53, 0.15); color: var(--warn); }
+    .badge.bad { background: rgba(184, 81, 67, 0.13); color: var(--bad); }
+    .message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.72);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .message.good { color: var(--good); border-color: rgba(76, 123, 98, 0.28); background: rgba(76, 123, 98, 0.09); }
+    .message.warn { color: var(--warn); border-color: rgba(204, 139, 53, 0.3); background: rgba(204, 139, 53, 0.11); }
+    .message.bad { color: var(--bad); border-color: rgba(184, 81, 67, 0.28); background: rgba(184, 81, 67, 0.09); }
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: rgba(255, 251, 245, 0.78);
+      padding: 0 12px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: rgba(139, 105, 68, 0.62); box-shadow: 0 0 0 4px rgba(139, 105, 68, 0.12); }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 251, 245, 0.62);
+    }
+    table { width: 100%; min-width: 720px; border-collapse: collapse; }
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid rgba(124, 98, 67, 0.12);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    th { color: var(--muted); background: rgba(139, 105, 68, 0.08); }
+    tr:last-child td { border-bottom: 0; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(119, 107, 94, 0.12);
+      color: var(--muted);
+    }
+    .tag.good { background: rgba(76, 123, 98, 0.14); color: var(--good); }
+    .tag.warn { background: rgba(204, 139, 53, 0.15); color: var(--warn); }
+    .tag.bad { background: rgba(184, 81, 67, 0.13); color: var(--bad); }
+    .currency { font-variant-numeric: tabular-nums; }
+    .fee-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(124, 98, 67, 0.12);
+    }
+    .fee-row:last-child { border-bottom: 0; }
+    .fee-row small { color: var(--muted); display: block; margin-top: 4px; }
+    .field-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .field-group .full { grid-column: 1 / -1; }
+    .checklist { display: grid; gap: 8px; margin-top: 10px; }
+    .check-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.7);
+    }
+    .check-item.active { border-color: rgba(139, 105, 68, 0.28); background: rgba(139, 105, 68, 0.08); }
+    .sidebar-spacer {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .empty {
+      color: var(--muted);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px dashed var(--line);
+      background: rgba(255, 251, 245, 0.52);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    @media (max-width: 1080px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .cards, .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .content { padding: 14px; }
+      .hero, .cards, .grid-2, .field-group { grid-template-columns: 1fr; display: grid; }
+      .hero { padding: 16px; display: grid; }
+      .cards { display: grid; grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 620px) {
+      .app { width: min(100% - 16px, 1440px); }
+      .cards { grid-template-columns: 1fr; }
+      .actions .btn { width: 100%; }
+      table { min-width: 640px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="eyebrow">收费管理后台</div>
+          <h1>教培缴费控制台</h1>
+          <p class="hint">左侧菜单切换管理模块，右侧展示当前内容。</p>
+        </div>
+        <nav class="menu" id="menu">
+          <button class="active" data-page="dashboard">总览</button>
+          <button data-page="students">学生管理</button>
+          <button data-page="fees">收费项目</button>
+          <button data-page="binds">学生关联收费项目</button>
+          <button data-page="status">缴费状态</button>
+          <button data-page="share">二维码生成</button>
+        </nav>
+        <div class="sidebar-spacer">
+          <a class="btn secondary" href="./index.html" style="display:inline-flex;align-items:center;justify-content:center;width:100%;">打开家长端缴费页</a>
+          <div class="sidebar-note">扫码后应进入 `index.html`，这里仅供后台操作演示。</div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section class="page active" data-page="dashboard">
+          <div class="hero">
+            <div>
+              <div class="eyebrow">教培收费系统</div>
+              <h2>收费数据总览</h2>
+              <p class="hint">学生、收费项目、关联关系和缴费状态都基于同一份演示数据同步。</p>
+            </div>
+            <div class="actions">
+              <button class="btn" id="importBtn">导入示例学生</button>
+              <button class="btn secondary" id="resetBtn">重置演示数据</button>
+            </div>
+          </div>
+          <div class="cards" id="kpiBoard"></div>
+        </section>
+
+        <section class="page" data-page="students">
+          <div class="card" style="padding:18px;">
+            <div class="section-head">
+              <div>
+                <h3>学生数据管理</h3>
+                <p class="hint">导入或新增的学生会写入同源数据池，家长端只从这里核验。</p>
+              </div>
+            </div>
+            <div class="actions" style="margin-bottom:12px;">
+              <button class="btn" id="importBtn2">导入示例学生</button>
+            </div>
+            <div class="field-group">
+              <div class="field"><label for="newName">学生姓名</label><input id="newName" placeholder="学生姓名"></div>
+              <div class="field"><label for="newIdNo">身份证号</label><input id="newIdNo" placeholder="18 位身份证号"></div>
+              <div class="field"><label for="newClass">班级</label><input id="newClass" placeholder="例如：初一 2 班"></div>
+              <div class="field"><label for="newPhone">家长手机号</label><input id="newPhone" placeholder="例如：13800000000"></div>
+              <div class="full actions"><button class="btn secondary" id="addStudentBtn">新增学生</button></div>
+            </div>
+            <div id="adminMessage" class="message">当前可用示例：林子涵 / 330102201406180123。</div>
+            <div class="table-wrap" style="margin-top:14px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>学生</th>
+                    <th>班级</th>
+                    <th>身份证</th>
+                    <th>家长手机号</th>
+                    <th>已关联项目</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="studentRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="fees">
+          <div class="card" style="padding:18px;">
+            <div class="section-head">
+              <div>
+                <h3>收费项目配置</h3>
+                <p class="hint">启用的收费项目才会参与学生关联与家长端待缴明细计算。</p>
+              </div>
+            </div>
+            <div id="feeConfig"></div>
+          </div>
+        </section>
+
+        <section class="page" data-page="binds">
+          <div class="card" style="padding:18px;">
+            <div class="section-head">
+              <div>
+                <h3>学生关联收费项目</h3>
+                <p class="hint">先批量选择学生，再给这些学生关联一项或多项收费项目。关联后的项目金额会同步到家长端与统计中。</p>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="subcard">
+                <h3>批量选择学生</h3>
+                <p class="hint">勾选多个学生后再批量关联收费项目。</p>
+                <div class="checklist" id="studentPickList"></div>
+                <div class="actions" style="margin-top:12px;">
+                  <button class="btn secondary" id="selectAllBtn">全选</button>
+                  <button class="btn secondary" id="clearSelectBtn">清空选择</button>
+                </div>
+              </div>
+              <div class="subcard">
+                <h3>关联收费项目</h3>
+                <p class="hint">只允许选择启用状态的收费项目。</p>
+                <div class="actions" style="margin-top:10px;">
+                  <button class="btn secondary" id="appendModeBtn">追加关联</button>
+                  <button class="btn secondary" id="replaceModeBtn">覆盖关联</button>
+                </div>
+                <div class="checklist" id="feePickList"></div>
+                <div class="actions" style="margin-top:12px;">
+                  <button class="btn" id="bindBtn">批量关联项目</button>
+                  <button class="btn secondary" id="clearBindBtn">清空已关联项目</button>
+                </div>
+                <div id="bindMessage" class="message">请选择学生和收费项目后执行关联。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="status">
+          <div class="card" style="padding:18px;">
+            <div class="section-head">
+              <div>
+                <h3>缴费状态监控</h3>
+                <p class="hint">支付成功后，这里的状态会同步刷新。</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>学生</th>
+                    <th>班级</th>
+                    <th>身份证</th>
+                    <th>应缴金额</th>
+                    <th>已关联项目</th>
+                    <th>状态</th>
+                    <th>支付时间</th>
+                  </tr>
+                </thead>
+                <tbody id="statusRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page="share">
+          <div class="card" style="padding:18px;">
+            <div class="section-head">
+              <div>
+            <h3>二维码生成</h3>
+            <p class="hint">部署后可直接在本地生成家长端二维码，不依赖网络，不需要编译。</p>
+          </div>
+              <div class="actions" style="margin-top:12px;">
+                <button class="btn" id="generateQrBtn">生成二维码</button>
+                <button class="btn secondary" id="copyUrlBtn">复制家长端 URL</button>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px;">
+              <label for="deployUrl">家长端 URL</label>
+              <input id="deployUrl" placeholder="请输入需要生成二维码的家长端 URL">
+            </div>
+            <div id="qrHolder" style="margin-top:14px;display:grid;place-items:center;min-height:220px;border:1px dashed var(--line);border-radius:14px;background:rgba(255,251,245,0.62);"></div>
+            <div class="message">扫码后只会打开家长端页面 <code>index.html</code>，不会展示当前后台。</div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="./vendor/qrcode.js"></script>
+
+  <script>
+    const STORAGE_KEY = "eduFeeDemoState";
+    const analyticsConfig = { productionDomain: "", websiteId: "", scriptUrl: "" };
+    const initialState = {
+      students: [
+        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "初一 2 班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
+        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "初二 1 班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
+      ],
+      feeItems: [
+        { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680, enabled: true },
+        { id: "fee-002", name: "住宿费", cycle: "2026 春季", amount: 2400, enabled: true },
+        { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520, enabled: true }
+      ],
+      payments: {
+        "stu-002": { status: "paid", paidAt: "2026-06-24 10:18", channel: "聚合支付演示通道" }
+      }
+    };
+    const importedStudents = [
+      { id: "stu-003", name: "学生A", idNo: "123", className: "初一 3 班", guardianPhone: "13700000001", importedAt: "2026-06-24 11:00", feeIds: [] },
+      { id: "stu-004", name: "陈一诺", idNo: "330102201410110789", className: "初一 3 班", guardianPhone: "13700000002", importedAt: "2026-06-24 11:00", feeIds: [] },
+      { id: "stu-005", name: "王梓涵", idNo: "330102201408010031", className: "初一 1 班", guardianPhone: "13700000003", importedAt: "2026-06-24 11:00", feeIds: [] }
+    ];
+    let state = loadState();
+    const selectedStudentIds = new Set();
+    const selectedFeeIds = new Set();
+    let bindMode = "replace";
+    const money = new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 });
+    const menuButtons = Array.from(document.querySelectorAll("#menu button"));
+    const pages = Array.from(document.querySelectorAll(".page"));
+    const dom = {
+      kpiBoard: document.getElementById("kpiBoard"),
+      studentRows: document.getElementById("studentRows"),
+      statusRows: document.getElementById("statusRows"),
+      studentPickList: document.getElementById("studentPickList"),
+      feePickList: document.getElementById("feePickList"),
+      feeConfig: document.getElementById("feeConfig"),
+      importBtn: document.getElementById("importBtn"),
+      importBtn2: document.getElementById("importBtn2"),
+      resetBtn: document.getElementById("resetBtn"),
+      addStudentBtn: document.getElementById("addStudentBtn"),
+      adminMessage: document.getElementById("adminMessage"),
+      bindMessage: document.getElementById("bindMessage"),
+      newName: document.getElementById("newName"),
+      newIdNo: document.getElementById("newIdNo"),
+      newClass: document.getElementById("newClass"),
+      newPhone: document.getElementById("newPhone"),
+      selectAllBtn: document.getElementById("selectAllBtn"),
+      clearSelectBtn: document.getElementById("clearSelectBtn"),
+      bindBtn: document.getElementById("bindBtn"),
+      clearBindBtn: document.getElementById("clearBindBtn"),
+      appendModeBtn: document.getElementById("appendModeBtn"),
+      replaceModeBtn: document.getElementById("replaceModeBtn"),
+      generateQrBtn: document.getElementById("generateQrBtn"),
+      copyUrlBtn: document.getElementById("copyUrlBtn"),
+      qrHolder: document.getElementById("qrHolder"),
+      deployUrl: document.getElementById("deployUrl")
+    };
+
+    function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : clone(initialState);
+      } catch {
+        return clone(initialState);
+      }
+    }
+    function saveState() {
+      const saved = loadState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...saved, students: state.students, feeItems: state.feeItems, payments: state.payments }));
+    }
+    function nowText() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+    function activeFees() { return state.feeItems.filter((item) => item.enabled); }
+    function feeById(id) { return state.feeItems.find((item) => item.id === id); }
+    function paymentFor(studentId) { return state.payments[studentId] || { status: "pending", paidAt: "", channel: "" }; }
+    function studentFees(student) {
+      const ids = student.feeIds && student.feeIds.length ? student.feeIds : activeFees().map((item) => item.id);
+      return ids.map((id) => feeById(id)).filter(Boolean).filter((item) => item.enabled);
+    }
+    function studentTotal(student) {
+      return studentFees(student).reduce((sum, item) => sum + item.amount, 0);
+    }
+    function maskIdNo(idNo) { return idNo.length <= 6 ? idNo : `${idNo.slice(0, 4)}**********${idNo.slice(-4)}`; }
+    function setMessage(element, type, text) {
+      element.className = `message ${type || ""}`.trim();
+      element.textContent = text;
+    }
+    function setPage(pageName) {
+      menuButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.page === pageName));
+      pages.forEach((page) => page.classList.toggle("active", page.dataset.page === pageName));
+      renderActivePage();
+    }
+    function renderActivePage() {
+      const active = document.querySelector(".page.active")?.dataset.page;
+      if (active === "dashboard") renderKpis();
+      if (active === "students") { renderStudentTable(); renderStudentPickList(); }
+      if (active === "fees") renderFeeConfig();
+      if (active === "binds") { renderStudentPickList(); renderFeePickList(); }
+      if (active === "status") renderStatusTable();
+      if (active === "share") renderShare();
+    }
+    function renderDashboardRelated() {
+      renderKpis();
+      renderStudentTable();
+      renderStatusTable();
+      renderFeeConfig();
+      renderStudentPickList();
+      renderFeePickList();
+      renderShare();
+    }
+    function renderKpis() {
+      const students = state.students;
+      const total = students.reduce((sum, student) => sum + studentTotal(student), 0);
+      const paidCount = students.filter((student) => paymentFor(student.id).status === "paid").length;
+      const paid = students.filter((student) => paymentFor(student.id).status === "paid").reduce((sum, student) => sum + studentTotal(student), 0);
+      const rate = students.length ? Math.round((paidCount / students.length) * 100) : 0;
+      const feeCount = activeFees().length;
+      dom.kpiBoard.innerHTML = [
+        ["学生数量", students.length],
+        ["启用项目", feeCount],
+        ["已收金额", money.format(paid)],
+        ["缴费完成率", `${rate}%`]
+      ].map(([label, value]) => `
+        <div class="kpi">
+          <small>${label}</small>
+          <strong class="currency">${value}</strong>
+        </div>
+      `).join("");
+    }
+    function renderStudentTable() {
+      dom.studentRows.innerHTML = state.students.map((student) => {
+        const count = studentFees(student).length;
+        return `
+          <tr>
+            <td>${student.name}</td>
+            <td>${student.className}</td>
+            <td>${maskIdNo(student.idNo)}</td>
+            <td>${student.guardianPhone}</td>
+            <td>${count}</td>
+            <td><button class="btn secondary" data-open-bind="${student.id}" style="min-height:32px;padding:0 10px;">关联项目</button></td>
+          </tr>
+        `;
+      }).join("");
+      dom.studentRows.querySelectorAll("button[data-open-bind]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedStudentIds.clear();
+          selectedStudentIds.add(button.dataset.openBind);
+          setPage("binds");
+          renderStudentPickList();
+        });
+      });
+    }
+    function renderStatusTable() {
+      dom.statusRows.innerHTML = state.students.map((student) => {
+        const payment = paymentFor(student.id);
+        const paid = payment.status === "paid";
+        const feeNames = studentFees(student).map((item) => item.name).join("、") || "未关联";
+        return `
+          <tr>
+            <td>${student.name}</td>
+            <td>${student.className}</td>
+            <td>${maskIdNo(student.idNo)}</td>
+            <td>${money.format(studentTotal(student))}</td>
+            <td>${feeNames}</td>
+            <td><span class="${paid ? "tag good" : "tag warn"}">${paid ? "已支付" : "待支付"}</span></td>
+            <td>${payment.paidAt || "-"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+    function renderFeeConfig() {
+      dom.feeConfig.innerHTML = state.feeItems.map((item) => `
+        <div class="fee-row">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${item.cycle}</small>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+            <input aria-label="${item.name}金额" data-fee-id="${item.id}" value="${item.amount}" style="width:110px;min-height:38px;">
+            <button class="btn ${item.enabled ? "good" : "bad"}" data-toggle-fee="${item.id}" style="min-height:38px;padding:0 12px;">${item.enabled ? "启用" : "禁用"}</button>
+          </div>
+        </div>
+      `).join("");
+      dom.feeConfig.querySelectorAll("input[data-fee-id]").forEach((input) => {
+        input.addEventListener("change", (event) => {
+          const fee = feeById(event.target.dataset.feeId);
+          const value = Number(event.target.value);
+          if (!Number.isFinite(value) || value < 0) {
+            event.target.value = fee.amount;
+            setMessage(dom.adminMessage, "bad", "收费金额必须是大于等于 0 的数字。");
+            return;
+          }
+          fee.amount = value;
+          saveState();
+          setMessage(dom.adminMessage, "good", `${fee.name} 金额已更新为 ${money.format(value)}。`);
+          renderDashboardRelated();
+        });
+      });
+      dom.feeConfig.querySelectorAll("button[data-toggle-fee]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const fee = feeById(button.dataset.toggleFee);
+          fee.enabled = !fee.enabled;
+          if (!fee.enabled) {
+            state.students.forEach((student) => {
+              student.feeIds = (student.feeIds || []).filter((id) => id !== fee.id);
+            });
+          }
+          saveState();
+          setMessage(dom.adminMessage, "good", `${fee.name} 已${fee.enabled ? "启用" : "禁用"}。`);
+          renderDashboardRelated();
+        });
+      });
+    }
+    function renderStudentPickList() {
+      dom.studentPickList.innerHTML = state.students.map((student) => `
+        <label class="check-item ${selectedStudentIds.has(student.id) ? "active" : ""}">
+          <span>
+            <strong>${student.name}</strong>
+            <small style="display:block;color:var(--muted);margin-top:4px;">${student.className} · ${maskIdNo(student.idNo)}</small>
+          </span>
+          <input type="checkbox" data-student-pick="${student.id}" ${selectedStudentIds.has(student.id) ? "checked" : ""} style="width:18px;height:18px;">
+        </label>
+      `).join("");
+      dom.studentPickList.querySelectorAll("input[data-student-pick]").forEach((input) => {
+        input.addEventListener("change", (event) => {
+          const id = event.target.dataset.studentPick;
+          if (event.target.checked) selectedStudentIds.add(id);
+          else selectedStudentIds.delete(id);
+          renderStudentPickList();
+        });
+      });
+    }
+    function renderFeePickList() {
+      const enabledFees = state.feeItems.filter((item) => item.enabled);
+      dom.feePickList.innerHTML = enabledFees.map((fee) => `
+        <label class="check-item ${selectedFeeIds.has(fee.id) ? "active" : ""}">
+          <span>
+            <strong>${fee.name}</strong>
+            <small style="display:block;color:var(--muted);margin-top:4px;">${fee.cycle} · ${money.format(fee.amount)}</small>
+          </span>
+          <input type="checkbox" data-fee-pick="${fee.id}" ${selectedFeeIds.has(fee.id) ? "checked" : ""} style="width:18px;height:18px;">
+        </label>
+      `).join("") || `<div class="empty">暂无启用中的收费项目，请先在收费项目配置中启用项目。</div>`;
+      dom.feePickList.querySelectorAll("input[data-fee-pick]").forEach((input) => {
+        input.addEventListener("change", (event) => {
+          const id = event.target.dataset.feePick;
+          if (event.target.checked) selectedFeeIds.add(id);
+          else selectedFeeIds.delete(id);
+          renderFeePickList();
+        });
+      });
+    }
+    function renderShare() {
+      const base = `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "index.html")}`;
+      if (!dom.deployUrl.value) {
+        dom.deployUrl.value = base;
+      }
+    }
+    function renderQrCode() {
+      const url = dom.deployUrl.value.trim();
+      if (!url) {
+        dom.qrHolder.innerHTML = `<div class="empty">请先填写家长端 URL。</div>`;
+        return;
+      }
+      if (typeof qrcode !== "function") {
+        dom.qrHolder.innerHTML = `<div class="empty">二维码库未加载，无法生成二维码。</div>`;
+        return;
+      }
+      const qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      dom.qrHolder.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2 });
+    }
+    function renderBindMode() {
+      dom.appendModeBtn.classList.toggle("secondary", bindMode !== "append");
+      dom.appendModeBtn.classList.toggle("good", bindMode === "append");
+      dom.replaceModeBtn.classList.toggle("secondary", bindMode !== "replace");
+      dom.replaceModeBtn.classList.toggle("good", bindMode === "replace");
+      dom.appendModeBtn.textContent = bindMode === "append" ? "追加关联 · 当前" : "追加关联";
+      dom.replaceModeBtn.textContent = bindMode === "replace" ? "覆盖关联 · 当前" : "覆盖关联";
+    }
+    function simulateImport() {
+      const existingIds = new Set(state.students.map((student) => student.id));
+      const additions = importedStudents.filter((student) => !existingIds.has(student.id));
+      state.students.push(...clone(additions));
+      saveState();
+      setMessage(dom.adminMessage, additions.length ? "good" : "warn", additions.length ? `已导入 ${additions.length} 名学生。` : "示例学生已导入，无需重复导入。");
+      renderDashboardRelated();
+    }
+    function addStudent() {
+      const name = dom.newName.value.trim();
+      const idNo = dom.newIdNo.value.trim();
+      const className = dom.newClass.value.trim();
+      const guardianPhone = dom.newPhone.value.trim();
+      if (!name || !idNo || !className || !guardianPhone) {
+        setMessage(dom.adminMessage, "bad", "请完整填写学生姓名、身份证号、班级和家长手机号。");
+        return;
+      }
+      if (state.students.some((student) => student.name === name && student.idNo === idNo)) {
+        setMessage(dom.adminMessage, "warn", "该学生已存在于数据池中。");
+        return;
+      }
+      state.students.push({ id: `stu-${Date.now()}`, name, idNo, className, guardianPhone, importedAt: nowText(), feeIds: [] });
+      saveState();
+      dom.newName.value = "";
+      dom.newIdNo.value = "";
+      dom.newClass.value = "";
+      dom.newPhone.value = "";
+      setMessage(dom.adminMessage, "good", `已新增 ${name}。`);
+      renderDashboardRelated();
+    }
+    function resetDemo() {
+      state = clone(initialState);
+      selectedStudentIds.clear();
+      selectedFeeIds.clear();
+      saveState();
+      setMessage(dom.adminMessage, "", "演示数据已重置。");
+      setMessage(dom.bindMessage, "", "请选择学生和收费项目后执行关联。");
+      renderDashboardRelated();
+    }
+    function bindSelectedFees() {
+      const students = state.students.filter((student) => selectedStudentIds.has(student.id));
+      const fees = state.feeItems.filter((fee) => selectedFeeIds.has(fee.id) && fee.enabled);
+      if (!students.length || !fees.length) {
+        setMessage(dom.bindMessage, "warn", "请先选择学生和启用中的收费项目。");
+        return;
+      }
+      students.forEach((student) => {
+        const nextFees = bindMode === "append" ? new Set(student.feeIds || []) : new Set();
+        fees.forEach((fee) => nextFees.add(fee.id));
+        student.feeIds = Array.from(nextFees);
+      });
+      saveState();
+      setMessage(dom.bindMessage, "good", `${bindMode === "append" ? "已追加" : "已覆盖"} ${students.length} 名学生的 ${fees.length} 个收费项目。家长端待缴金额将自动同步。`);
+      renderDashboardRelated();
+      renderStatusTable();
+    }
+    function clearSelection() {
+      selectedStudentIds.clear();
+      selectedFeeIds.clear();
+      renderStudentPickList();
+      renderFeePickList();
+      setMessage(dom.bindMessage, "", "请选择学生和收费项目后执行关联。");
+    }
+    function selectAllStudents() {
+      state.students.forEach((student) => selectedStudentIds.add(student.id));
+      renderStudentPickList();
+    }
+    function clearStudentBindings() {
+      const students = state.students.filter((student) => selectedStudentIds.has(student.id));
+      if (!students.length) {
+        setMessage(dom.bindMessage, "warn", "请先选择要清空关联的学生。");
+        return;
+      }
+      students.forEach((student) => {
+        student.feeIds = [];
+      });
+      saveState();
+      setMessage(dom.bindMessage, "good", `已清空 ${students.length} 名学生的已关联项目。`);
+      renderDashboardRelated();
+      renderStatusTable();
+    }
+    function enableAnalytics() {
+      const host = window.location.hostname;
+      const isLocal = ["localhost", "127.0.0.1", ""].includes(host);
+      if (isLocal || !analyticsConfig.productionDomain || !analyticsConfig.websiteId || !analyticsConfig.scriptUrl) return;
+      if (host !== analyticsConfig.productionDomain) return;
+      const script = document.createElement("script");
+      script.defer = true;
+      script.src = analyticsConfig.scriptUrl;
+      script.dataset.websiteId = analyticsConfig.websiteId;
+      document.head.appendChild(script);
+    }
+
+    menuButtons.forEach((button) => button.addEventListener("click", () => setPage(button.dataset.page)));
+    dom.importBtn.addEventListener("click", simulateImport);
+    dom.importBtn2.addEventListener("click", simulateImport);
+    dom.resetBtn.addEventListener("click", resetDemo);
+    dom.addStudentBtn.addEventListener("click", addStudent);
+    dom.bindBtn.addEventListener("click", bindSelectedFees);
+    dom.clearBindBtn.addEventListener("click", clearStudentBindings);
+    dom.clearSelectBtn.addEventListener("click", clearSelection);
+    dom.selectAllBtn.addEventListener("click", selectAllStudents);
+    dom.appendModeBtn.addEventListener("click", () => {
+      bindMode = "append";
+      renderBindMode();
+      setMessage(dom.bindMessage, "", "当前为追加关联：只会新增勾选项目，不会移除原有关联。");
+    });
+    dom.replaceModeBtn.addEventListener("click", () => {
+      bindMode = "replace";
+      renderBindMode();
+      setMessage(dom.bindMessage, "", "当前为覆盖关联：未勾选的旧项目会被移除。");
+    });
+    dom.generateQrBtn.addEventListener("click", () => {
+      renderQrCode();
+      setMessage(dom.adminMessage, "good", "二维码已生成，可直接用于扫码分发。");
+    });
+    dom.copyUrlBtn.addEventListener("click", async () => {
+      const url = dom.deployUrl.value.trim();
+      if (!url) {
+        setMessage(dom.adminMessage, "warn", "请先填写家长端 URL。");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        setMessage(dom.adminMessage, "good", "家长端 URL 已复制。");
+      } catch {
+        setMessage(dom.adminMessage, "warn", "浏览器未允许复制，请手动复制下方 URL。");
+      }
+    });
+    window.addEventListener("storage", () => {
+      state = loadState();
+      renderDashboardRelated();
+    });
+
+    saveState();
+    enableAnalytics();
+    renderDashboardRelated();
+    renderBindMode();
+    renderQrCode();
+    setPage("dashboard");
+  </script>
+</body>
+</html>
