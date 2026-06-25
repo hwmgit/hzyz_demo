@@ -290,8 +290,8 @@
     const analyticsConfig = { productionDomain: "", websiteId: "", scriptUrl: "" };
     const initialState = {
       students: [
-        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "初一 2 班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
-        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "初二 1 班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
+        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "专升本考前班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
+        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "成人高考高起专班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
       ],
       feeItems: [
         { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680, enabled: true },
@@ -299,7 +299,15 @@
         { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520, enabled: true }
       ],
       payments: {
-        "stu-002": { status: "paid", paidAt: "2026-06-24 10:18", channel: "聚合支付演示通道" }
+        "stu-002": {
+          status: "paid",
+          paidAt: "2026-06-24 10:18",
+          channel: "聚合支付演示通道",
+          paidSnapshot: [
+            { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680 },
+            { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520 }
+          ]
+        }
       },
       selectedStudentId: null
     };
@@ -332,12 +340,39 @@
     }
 
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function normalizeState(nextState) {
+      const classMap = {
+        "初一 1 班": "开放教育本科班",
+        "初一 2 班": "专升本考前班",
+        "初一 3 班": "职业资格提升班",
+        "初二 1 班": "成人高考高起专班"
+      };
+      nextState.students = (nextState.students || []).map((student) => ({
+        ...student,
+        className: classMap[student.className] || student.className || "继续教育综合班"
+      }));
+      nextState.payments = nextState.payments || {};
+      nextState.students.forEach((student) => {
+        const payment = nextState.payments[student.id];
+        if (!payment || payment.status !== "paid") return;
+        if (!Array.isArray(payment.paidSnapshot) || !payment.paidSnapshot.length) {
+          const snapshotIds = Array.isArray(payment.paidFeeIds) && payment.paidFeeIds.length ? payment.paidFeeIds : Array.isArray(student.feeIds) ? student.feeIds : [];
+          payment.paidSnapshot = snapshotIds.map((id) => {
+            const fee = (nextState.feeItems || []).find((item) => item.id === id);
+            return fee ? { id: fee.id, name: fee.name, cycle: fee.cycle, amount: fee.amount } : null;
+          }).filter(Boolean);
+        }
+        const lockedIds = payment.paidSnapshot.map((item) => item.id);
+        student.feeIds = Array.from(new Set([...(Array.isArray(student.feeIds) ? student.feeIds : []), ...lockedIds]));
+      });
+      return nextState;
+    }
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : clone(initialState);
+        return normalizeState(saved ? JSON.parse(saved) : clone(initialState));
       } catch {
-        return clone(initialState);
+        return normalizeState(clone(initialState));
       }
     }
     function saveState() {
@@ -345,14 +380,37 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...saved, ...state, selectedStudentId: state.selectedStudentId }));
     }
     function activeFees() { return state.feeItems.filter((item) => item.enabled); }
+    function feeById(id) { return state.feeItems.find((item) => item.id === id); }
+    function paymentFor(studentId) { return state.payments[studentId] || { status: "pending", paidAt: "", channel: "" }; }
+    function paidSnapshots(studentId) {
+      const payment = paymentFor(studentId);
+      return Array.isArray(payment.paidSnapshot) ? payment.paidSnapshot : [];
+    }
+    function currentFeeIds(student) {
+      return Array.isArray(student.feeIds) ? student.feeIds : activeFees().map((item) => item.id);
+    }
+    function paidFeeIds(studentId) {
+      return paidSnapshots(studentId).map((item) => item.id);
+    }
+    function paidFeeItems(student) {
+      return paidSnapshots(student.id);
+    }
+    function pendingFeeItems(student) {
+      const paidIds = new Set(paidFeeIds(student.id));
+      return currentFeeIds(student).filter((id) => !paidIds.has(id)).map((id) => feeById(id)).filter(Boolean).filter((item) => item.enabled);
+    }
     function studentFees(student) {
-      const ids = student.feeIds && student.feeIds.length ? student.feeIds : activeFees().map((item) => item.id);
-      return ids.map((id) => state.feeItems.find((item) => item.id === id)).filter(Boolean).filter((item) => item.enabled);
+      return [...paidFeeItems(student), ...pendingFeeItems(student)];
     }
     function totalDue(student) {
-      return studentFees(student).reduce((sum, item) => sum + item.amount, 0);
+      return pendingFeeItems(student).reduce((sum, item) => sum + item.amount, 0);
     }
-    function paymentFor(studentId) { return state.payments[studentId] || { status: "pending", paidAt: "", channel: "" }; }
+    function billingStatus(student) {
+      const payment = paymentFor(student.id);
+      const paidIds = paidFeeIds(student.id);
+      if (!payment.status || payment.status === "pending" || !paidIds.length) return "unpaid";
+      return pendingFeeItems(student).length ? "partial" : "paid";
+    }
     function maskIdNo(idNo) { return idNo.length <= 6 ? idNo : `${idNo.slice(0, 4)}**********${idNo.slice(-4)}`; }
     function nowText() {
       const now = new Date();
@@ -402,25 +460,38 @@
         return;
       }
       const payment = paymentFor(student.id);
-      const isPaid = payment.status === "paid";
-      dom.parentStateBadge.className = isPaid ? "badge good" : "badge warn";
-      dom.parentStateBadge.textContent = isPaid ? "已支付" : "待支付";
-      const feeRows = studentFees(student).map((item) => `
+      const status = billingStatus(student);
+      const paidItems = paidFeeItems(student);
+      const pendingItems = pendingFeeItems(student);
+      dom.parentStateBadge.className = status === "paid" ? "badge good" : "badge warn";
+      dom.parentStateBadge.textContent = status === "paid" ? "已支付" : status === "partial" ? "待补缴" : "待支付";
+      const paidRows = paidItems.map((item) => `
         <div class="fee-row">
           <div><strong>${item.name}</strong><small>${item.cycle}</small></div>
           <strong>${money.format(item.amount)}</strong>
         </div>
-      `).join("") || `<div class="fee-row"><div><strong>暂无启用收费项目</strong><small>请先在后台配置并关联项目。</small></div><strong>¥0</strong></div>`;
+      `).join("");
+      const pendingRows = pendingItems.map((item) => `
+        <div class="fee-row">
+          <div><strong>${item.name}</strong><small>${item.cycle}</small></div>
+          <strong>${money.format(item.amount)}</strong>
+        </div>
+      `).join("");
+      const feeRows = `
+        ${paidRows ? `<div style="padding:16px 16px 0;"><strong>已支付项目</strong></div>${paidRows}` : ""}
+        ${pendingRows ? `<div style="padding:16px 16px 0;"><strong>${status === "partial" ? "新增待补缴项目" : "待缴项目"}</strong></div>${pendingRows}` : ""}
+        ${!paidRows && !pendingRows ? `<div class="fee-row"><div><strong>暂无启用收费项目</strong><small>请先在后台配置并关联项目。</small></div><strong>¥0</strong></div>` : ""}
+      `;
       dom.paymentDetail.innerHTML = `
         <div class="pay-card">
           <div class="pay-title">
             <div><strong>${student.name}</strong><small>${student.className} · ${maskIdNo(student.idNo)}</small></div>
-            <span class="${isPaid ? "badge good" : "badge warn"}">${isPaid ? "已完成缴费" : "待完成缴费"}</span>
+            <span class="${status === "paid" ? "badge good" : "badge warn"}">${status === "paid" ? "已完成缴费" : status === "partial" ? "已支付后新增待补缴" : "待完成缴费"}</span>
           </div>
           <div>${feeRows}</div>
-          <div class="total-line"><span>合计应缴</span><span>${money.format(totalDue(student))}</span></div>
+          <div class="total-line"><span>${status === "partial" ? "待补缴合计" : "合计应缴"}</span><span>${money.format(totalDue(student))}</span></div>
           <div style="padding:16px;">
-            ${isPaid ? `<div class="message good" style="margin:0;">缴费已完成。支付时间：${payment.paidAt}，支付通道：${payment.channel}。</div>` : `<button class="btn good" id="openPayBtn" style="width:100%;">确认并进入聚合支付</button>`}
+            ${status === "paid" ? `<div class="message good" style="margin:0;">缴费已完成。支付时间：${payment.paidAt}，支付通道：${payment.channel}。</div>` : `<button class="btn good" id="openPayBtn" style="width:100%;">${status === "partial" ? "确认并支付待补缴项目" : "确认并进入聚合支付"}</button>`}
           </div>
         </div>
       `;
@@ -434,10 +505,20 @@
         dom.payModal.classList.remove("show");
         return;
       }
-      state.payments[student.id] = { status: "paid", paidAt: nowText(), channel: "聚合支付演示通道" };
+      const existingPaid = paidSnapshots(student.id);
+      const pendingItems = pendingFeeItems(student);
+      const nextSnapshot = [...existingPaid];
+      const knownIds = new Set(existingPaid.map((item) => item.id));
+      pendingItems.forEach((item) => {
+        if (!knownIds.has(item.id)) {
+          nextSnapshot.push({ id: item.id, name: item.name, cycle: item.cycle, amount: item.amount });
+          knownIds.add(item.id);
+        }
+      });
+      state.payments[student.id] = { status: "paid", paidAt: nowText(), channel: "聚合支付演示通道", paidSnapshot: nextSnapshot };
       saveState();
       dom.payModal.classList.remove("show");
-      setMessage(dom.verifyMessage, "good", `${student.name} 已完成模拟支付，缴费状态已同步更新。`);
+      setMessage(dom.verifyMessage, "good", `${student.name} 已完成模拟支付，缴费状态已按支付快照更新。`);
       renderParentDetail();
     }
 

@@ -380,7 +380,7 @@
             <div class="field-group">
               <div class="field"><label for="newName">学生姓名</label><input id="newName" placeholder="学生姓名"></div>
               <div class="field"><label for="newIdNo">身份证号</label><input id="newIdNo" placeholder="18 位身份证号"></div>
-              <div class="field"><label for="newClass">班级</label><input id="newClass" placeholder="例如：初一 2 班"></div>
+              <div class="field"><label for="newClass">班级</label><input id="newClass" placeholder="例如：专升本考前班"></div>
               <div class="field"><label for="newPhone">家长手机号</label><input id="newPhone" placeholder="例如：13800000000"></div>
               <div class="full actions"><button class="btn secondary" id="addStudentBtn">新增学生</button></div>
             </div>
@@ -411,6 +411,16 @@
                 <p class="hint">启用的收费项目才会参与学生关联与家长端待缴明细计算。</p>
               </div>
             </div>
+            <div class="subcard" style="margin-bottom:14px;">
+              <h3>新增收费项目</h3>
+              <div class="field-group" style="margin-top:12px;">
+                <div class="field"><label for="newFeeName">项目名称</label><input id="newFeeName" placeholder="例如：职业技能培训费"></div>
+                <div class="field"><label for="newFeeCycle">适用周期</label><input id="newFeeCycle" placeholder="例如：2026 春季"></div>
+                <div class="field"><label for="newFeeAmount">金额</label><input id="newFeeAmount" type="number" min="0" placeholder="例如：1280"></div>
+                <div class="full actions"><button class="btn" id="addFeeBtn">新增收费项目</button></div>
+              </div>
+              <div id="feeMessage" class="message">新增或调整收费项目后，会实时同步到学生关联和缴费状态。</div>
+            </div>
             <div id="feeConfig"></div>
           </div>
         </section>
@@ -426,10 +436,16 @@
             <div class="grid-2">
               <div class="subcard">
                 <h3>批量选择学生</h3>
-                <p class="hint">勾选多个学生后再批量关联收费项目。</p>
+                <p class="hint">可先按班级筛选，再勾选多个学生批量处理。</p>
+                <div class="field" style="margin-top:12px;">
+                  <label for="classFilterSelect">按班级筛选</label>
+                  <select id="classFilterSelect">
+                    <option value="">全部班级</option>
+                  </select>
+                </div>
                 <div class="checklist" id="studentPickList"></div>
                 <div class="actions" style="margin-top:12px;">
-                  <button class="btn secondary" id="selectAllBtn">全选</button>
+                  <button class="btn secondary" id="selectAllBtn">全选当前班级</button>
                   <button class="btn secondary" id="clearSelectBtn">清空选择</button>
                 </div>
               </div>
@@ -443,7 +459,10 @@
                 <div class="checklist" id="feePickList"></div>
                 <div class="actions" style="margin-top:12px;">
                   <button class="btn" id="bindBtn">批量关联项目</button>
-                  <button class="btn secondary" id="clearBindBtn">清空已关联项目</button>
+                </div>
+                <div class="actions" style="margin-top:10px;padding-top:12px;border-top:1px solid var(--line);">
+                  <button class="btn secondary" id="removeSelectedFeesBtn">移除勾选项目</button>
+                  <button class="btn bad" id="clearAllBindingsBtn">清空所选学生全部项目</button>
                 </div>
                 <div id="bindMessage" class="message">请选择学生和收费项目后执行关联。</div>
               </div>
@@ -509,8 +528,8 @@
     const analyticsConfig = { productionDomain: "", websiteId: "", scriptUrl: "" };
     const initialState = {
       students: [
-        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "初一 2 班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
-        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "初二 1 班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
+        { id: "stu-001", name: "林子涵", idNo: "330102201406180123", className: "专升本考前班", guardianPhone: "13800001234", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-002"] },
+        { id: "stu-002", name: "周雨桐", idNo: "330102201309220456", className: "成人高考高起专班", guardianPhone: "13900005678", importedAt: "2026-06-24 09:30", feeIds: ["fee-001", "fee-003"] }
       ],
       feeItems: [
         { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680, enabled: true },
@@ -518,18 +537,27 @@
         { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520, enabled: true }
       ],
       payments: {
-        "stu-002": { status: "paid", paidAt: "2026-06-24 10:18", channel: "聚合支付演示通道" }
+        "stu-002": {
+          status: "paid",
+          paidAt: "2026-06-24 10:18",
+          channel: "聚合支付演示通道",
+          paidSnapshot: [
+            { id: "fee-001", name: "代管费", cycle: "2026 春季", amount: 1680 },
+            { id: "fee-003", name: "教材资料费", cycle: "2026 春季", amount: 520 }
+          ]
+        }
       }
     };
     const importedStudents = [
-      { id: "stu-003", name: "学生A", idNo: "123", className: "初一 3 班", guardianPhone: "13700000001", importedAt: "2026-06-24 11:00", feeIds: [] },
-      { id: "stu-004", name: "陈一诺", idNo: "330102201410110789", className: "初一 3 班", guardianPhone: "13700000002", importedAt: "2026-06-24 11:00", feeIds: [] },
-      { id: "stu-005", name: "王梓涵", idNo: "330102201408010031", className: "初一 1 班", guardianPhone: "13700000003", importedAt: "2026-06-24 11:00", feeIds: [] }
+      { id: "stu-003", name: "学生A", idNo: "123", className: "职业资格提升班", guardianPhone: "13700000001", importedAt: "2026-06-24 11:00", feeIds: [] },
+      { id: "stu-004", name: "陈一诺", idNo: "330102201410110789", className: "职业资格提升班", guardianPhone: "13700000002", importedAt: "2026-06-24 11:00", feeIds: [] },
+      { id: "stu-005", name: "王梓涵", idNo: "330102201408010031", className: "开放教育本科班", guardianPhone: "13700000003", importedAt: "2026-06-24 11:00", feeIds: [] }
     ];
     let state = loadState();
     const selectedStudentIds = new Set();
     const selectedFeeIds = new Set();
     let bindMode = "replace";
+    let classFilter = "";
     const money = new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 });
     const menuButtons = Array.from(document.querySelectorAll("#menu button"));
     const pages = Array.from(document.querySelectorAll(".page"));
@@ -545,15 +573,22 @@
       resetBtn: document.getElementById("resetBtn"),
       addStudentBtn: document.getElementById("addStudentBtn"),
       adminMessage: document.getElementById("adminMessage"),
+      feeMessage: document.getElementById("feeMessage"),
       bindMessage: document.getElementById("bindMessage"),
       newName: document.getElementById("newName"),
       newIdNo: document.getElementById("newIdNo"),
       newClass: document.getElementById("newClass"),
       newPhone: document.getElementById("newPhone"),
+      newFeeName: document.getElementById("newFeeName"),
+      newFeeCycle: document.getElementById("newFeeCycle"),
+      newFeeAmount: document.getElementById("newFeeAmount"),
+      addFeeBtn: document.getElementById("addFeeBtn"),
+      classFilterSelect: document.getElementById("classFilterSelect"),
       selectAllBtn: document.getElementById("selectAllBtn"),
       clearSelectBtn: document.getElementById("clearSelectBtn"),
       bindBtn: document.getElementById("bindBtn"),
-      clearBindBtn: document.getElementById("clearBindBtn"),
+      removeSelectedFeesBtn: document.getElementById("removeSelectedFeesBtn"),
+      clearAllBindingsBtn: document.getElementById("clearAllBindingsBtn"),
       appendModeBtn: document.getElementById("appendModeBtn"),
       replaceModeBtn: document.getElementById("replaceModeBtn"),
       generateQrBtn: document.getElementById("generateQrBtn"),
@@ -563,12 +598,39 @@
     };
 
     function clone(value) { return JSON.parse(JSON.stringify(value)); }
+    function normalizeState(nextState) {
+      const classMap = {
+        "初一 1 班": "开放教育本科班",
+        "初一 2 班": "专升本考前班",
+        "初一 3 班": "职业资格提升班",
+        "初二 1 班": "成人高考高起专班"
+      };
+      nextState.students = (nextState.students || []).map((student) => ({
+        ...student,
+        className: classMap[student.className] || student.className || "继续教育综合班"
+      }));
+      nextState.payments = nextState.payments || {};
+      nextState.students.forEach((student) => {
+        const payment = nextState.payments[student.id];
+        if (!payment || payment.status !== "paid") return;
+        if (!Array.isArray(payment.paidSnapshot) || !payment.paidSnapshot.length) {
+          const snapshotIds = Array.isArray(payment.paidFeeIds) && payment.paidFeeIds.length ? payment.paidFeeIds : Array.isArray(student.feeIds) ? student.feeIds : [];
+          payment.paidSnapshot = snapshotIds.map((id) => {
+            const fee = (nextState.feeItems || []).find((item) => item.id === id);
+            return fee ? { id: fee.id, name: fee.name, cycle: fee.cycle, amount: fee.amount } : null;
+          }).filter(Boolean);
+        }
+        const lockedIds = payment.paidSnapshot.map((item) => item.id);
+        student.feeIds = Array.from(new Set([...(Array.isArray(student.feeIds) ? student.feeIds : []), ...lockedIds]));
+      });
+      return nextState;
+    }
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : clone(initialState);
+        return normalizeState(saved ? JSON.parse(saved) : clone(initialState));
       } catch {
-        return clone(initialState);
+        return normalizeState(clone(initialState));
       }
     }
     function saveState() {
@@ -583,9 +645,37 @@
     function activeFees() { return state.feeItems.filter((item) => item.enabled); }
     function feeById(id) { return state.feeItems.find((item) => item.id === id); }
     function paymentFor(studentId) { return state.payments[studentId] || { status: "pending", paidAt: "", channel: "" }; }
+    function paidSnapshots(studentId) {
+      const payment = paymentFor(studentId);
+      return Array.isArray(payment.paidSnapshot) ? payment.paidSnapshot : [];
+    }
+    function currentFeeIds(student) {
+      return Array.isArray(student.feeIds) ? student.feeIds : activeFees().map((item) => item.id);
+    }
+    function paidFeeIds(studentId) {
+      return paidSnapshots(studentId).map((item) => item.id);
+    }
+    function paidFeeItems(student) {
+      return paidSnapshots(student.id);
+    }
+    function pendingFeeItems(student) {
+      const paidIds = new Set(paidFeeIds(student.id));
+      return currentFeeIds(student).filter((id) => !paidIds.has(id)).map((id) => feeById(id)).filter(Boolean).filter((item) => item.enabled);
+    }
+    function billingStatus(student) {
+      const payment = paymentFor(student.id);
+      const paidIds = paidFeeIds(student.id);
+      if (!payment.status || payment.status === "pending" || !paidIds.length) return "unpaid";
+      return pendingFeeItems(student).length ? "partial" : "paid";
+    }
+    function classOptions() {
+      return Array.from(new Set(state.students.map((student) => student.className).filter(Boolean))).sort();
+    }
+    function filteredStudents() {
+      return classFilter ? state.students.filter((student) => student.className === classFilter) : state.students;
+    }
     function studentFees(student) {
-      const ids = student.feeIds && student.feeIds.length ? student.feeIds : activeFees().map((item) => item.id);
-      return ids.map((id) => feeById(id)).filter(Boolean).filter((item) => item.enabled);
+      return [...paidFeeItems(student), ...pendingFeeItems(student)];
     }
     function studentTotal(student) {
       return studentFees(student).reduce((sum, item) => sum + item.amount, 0);
@@ -603,9 +693,9 @@
     function renderActivePage() {
       const active = document.querySelector(".page.active")?.dataset.page;
       if (active === "dashboard") renderKpis();
-      if (active === "students") { renderStudentTable(); renderStudentPickList(); }
+      if (active === "students") { renderStudentTable(); renderStudentPickList(false); }
       if (active === "fees") renderFeeConfig();
-      if (active === "binds") { renderStudentPickList(); renderFeePickList(); }
+      if (active === "binds") { renderClassFilter(); renderStudentPickList(true); renderFeePickList(); }
       if (active === "status") renderStatusTable();
       if (active === "share") renderShare();
     }
@@ -614,15 +704,16 @@
       renderStudentTable();
       renderStatusTable();
       renderFeeConfig();
-      renderStudentPickList();
+      renderClassFilter();
+      renderStudentPickList(document.querySelector(".page.active")?.dataset.page === "binds");
       renderFeePickList();
       renderShare();
     }
     function renderKpis() {
       const students = state.students;
       const total = students.reduce((sum, student) => sum + studentTotal(student), 0);
-      const paidCount = students.filter((student) => paymentFor(student.id).status === "paid").length;
-      const paid = students.filter((student) => paymentFor(student.id).status === "paid").reduce((sum, student) => sum + studentTotal(student), 0);
+      const paidCount = students.filter((student) => billingStatus(student) === "paid").length;
+      const paid = students.reduce((sum, student) => sum + paidFeeItems(student).reduce((subtotal, item) => subtotal + item.amount, 0), 0);
       const rate = students.length ? Math.round((paidCount / students.length) * 100) : 0;
       const feeCount = activeFees().length;
       dom.kpiBoard.innerHTML = [
@@ -655,24 +746,29 @@
         button.addEventListener("click", () => {
           selectedStudentIds.clear();
           selectedStudentIds.add(button.dataset.openBind);
+          const student = state.students.find((item) => item.id === button.dataset.openBind);
+          classFilter = student?.className || "";
           setPage("binds");
-          renderStudentPickList();
+          renderClassFilter();
+          renderStudentPickList(true);
         });
       });
     }
     function renderStatusTable() {
       dom.statusRows.innerHTML = state.students.map((student) => {
         const payment = paymentFor(student.id);
-        const paid = payment.status === "paid";
-        const feeNames = studentFees(student).map((item) => item.name).join("、") || "未关联";
+        const status = billingStatus(student);
+        const paidNames = paidFeeItems(student).map((item) => item.name).join("、");
+        const pendingNames = pendingFeeItems(student).map((item) => item.name).join("、");
+        const feeNames = status === "paid" ? `已支付：${paidNames}` : status === "partial" ? `已支付：${paidNames}；待补缴：${pendingNames}` : studentFees(student).map((item) => item.name).join("、") || "未关联";
         return `
           <tr>
             <td>${student.name}</td>
             <td>${student.className}</td>
             <td>${maskIdNo(student.idNo)}</td>
             <td>${money.format(studentTotal(student))}</td>
-            <td>${feeNames}</td>
-            <td><span class="${paid ? "tag good" : "tag warn"}">${paid ? "已支付" : "待支付"}</span></td>
+            <td>${feeNames || "未关联"}</td>
+            <td><span class="${status === "paid" ? "tag good" : status === "partial" ? "tag warn" : "tag warn"}">${status === "paid" ? "已支付" : status === "partial" ? "已支付后新增待补缴" : "待支付"}</span></td>
             <td>${payment.paidAt || "-"}</td>
           </tr>
         `;
@@ -697,12 +793,12 @@
           const value = Number(event.target.value);
           if (!Number.isFinite(value) || value < 0) {
             event.target.value = fee.amount;
-            setMessage(dom.adminMessage, "bad", "收费金额必须是大于等于 0 的数字。");
+            setMessage(dom.feeMessage, "bad", "收费金额必须是大于等于 0 的数字。");
             return;
           }
           fee.amount = value;
           saveState();
-          setMessage(dom.adminMessage, "good", `${fee.name} 金额已更新为 ${money.format(value)}。`);
+          setMessage(dom.feeMessage, "good", `${fee.name} 金额已更新为 ${money.format(value)}。`);
           renderDashboardRelated();
         });
       });
@@ -712,17 +808,28 @@
           fee.enabled = !fee.enabled;
           if (!fee.enabled) {
             state.students.forEach((student) => {
-              student.feeIds = (student.feeIds || []).filter((id) => id !== fee.id);
+              const lockedIds = new Set(paidFeeIds(student.id));
+              student.feeIds = currentFeeIds(student).filter((id) => id !== fee.id || lockedIds.has(id));
             });
           }
           saveState();
-          setMessage(dom.adminMessage, "good", `${fee.name} 已${fee.enabled ? "启用" : "禁用"}。`);
+          setMessage(dom.feeMessage, "good", `${fee.name} 已${fee.enabled ? "启用" : "禁用"}。`);
           renderDashboardRelated();
         });
       });
     }
-    function renderStudentPickList() {
-      dom.studentPickList.innerHTML = state.students.map((student) => `
+    function renderClassFilter() {
+      const options = classOptions();
+      if (classFilter && !options.includes(classFilter)) classFilter = "";
+      dom.classFilterSelect.innerHTML = `<option value="">全部班级</option>${options.map((className) => `
+        <option value="${className}" ${className === classFilter ? "selected" : ""}>${className}</option>
+      `).join("")}`;
+      dom.classFilterSelect.value = classFilter;
+    }
+    function renderStudentPickList(useClassFilter) {
+      const shouldFilter = Boolean(useClassFilter);
+      const students = shouldFilter ? filteredStudents() : state.students;
+      dom.studentPickList.innerHTML = students.map((student) => `
         <label class="check-item ${selectedStudentIds.has(student.id) ? "active" : ""}">
           <span>
             <strong>${student.name}</strong>
@@ -736,9 +843,12 @@
           const id = event.target.dataset.studentPick;
           if (event.target.checked) selectedStudentIds.add(id);
           else selectedStudentIds.delete(id);
-          renderStudentPickList();
+          renderStudentPickList(shouldFilter);
         });
       });
+      if (!students.length) {
+        dom.studentPickList.innerHTML = `<div class="empty">当前班级暂无学生。</div>`;
+      }
     }
     function renderFeePickList() {
       const enabledFees = state.feeItems.filter((item) => item.enabled);
@@ -819,10 +929,31 @@
       setMessage(dom.adminMessage, "good", `已新增 ${name}。`);
       renderDashboardRelated();
     }
+    function addFeeItem() {
+      const name = dom.newFeeName.value.trim();
+      const cycle = dom.newFeeCycle.value.trim();
+      const amount = Number(dom.newFeeAmount.value);
+      if (!name || !cycle || !Number.isFinite(amount) || amount < 0) {
+        setMessage(dom.feeMessage, "bad", "请完整填写项目名称、适用周期和大于等于 0 的金额。");
+        return;
+      }
+      if (state.feeItems.some((item) => item.name === name && item.cycle === cycle)) {
+        setMessage(dom.feeMessage, "warn", "同周期下已存在同名收费项目。");
+        return;
+      }
+      state.feeItems.push({ id: `fee-${Date.now()}`, name, cycle, amount, enabled: true });
+      saveState();
+      dom.newFeeName.value = "";
+      dom.newFeeCycle.value = "";
+      dom.newFeeAmount.value = "";
+      setMessage(dom.feeMessage, "good", `已新增收费项目：${name}，默认启用。`);
+      renderDashboardRelated();
+    }
     function resetDemo() {
       state = clone(initialState);
       selectedStudentIds.clear();
       selectedFeeIds.clear();
+      classFilter = "";
       saveState();
       setMessage(dom.adminMessage, "", "演示数据已重置。");
       setMessage(dom.bindMessage, "", "请选择学生和收费项目后执行关联。");
@@ -836,7 +967,9 @@
         return;
       }
       students.forEach((student) => {
-        const nextFees = bindMode === "append" ? new Set(student.feeIds || []) : new Set();
+        const lockedFees = paidFeeIds(student.id);
+        const nextFees = bindMode === "append" ? new Set(currentFeeIds(student)) : new Set(lockedFees);
+        lockedFees.forEach((feeId) => nextFees.add(feeId));
         fees.forEach((fee) => nextFees.add(fee.id));
         student.feeIds = Array.from(nextFees);
       });
@@ -848,25 +981,49 @@
     function clearSelection() {
       selectedStudentIds.clear();
       selectedFeeIds.clear();
-      renderStudentPickList();
+      renderStudentPickList(true);
       renderFeePickList();
       setMessage(dom.bindMessage, "", "请选择学生和收费项目后执行关联。");
     }
     function selectAllStudents() {
-      state.students.forEach((student) => selectedStudentIds.add(student.id));
-      renderStudentPickList();
+      filteredStudents().forEach((student) => selectedStudentIds.add(student.id));
+      renderStudentPickList(true);
+    }
+    function removeSelectedFeesFromStudents() {
+      const students = state.students.filter((student) => selectedStudentIds.has(student.id));
+      const feeIds = Array.from(selectedFeeIds);
+      if (!students.length || !feeIds.length) {
+        setMessage(dom.bindMessage, "warn", "请先选择学生和要移除的收费项目。");
+        return;
+      }
+      let changed = 0;
+      students.forEach((student) => {
+        const paidIds = new Set(paidFeeIds(student.id));
+        const currentIds = currentFeeIds(student);
+        const before = currentIds.length;
+        student.feeIds = currentIds.filter((id) => !selectedFeeIds.has(id) || paidIds.has(id));
+        if (student.feeIds.length !== before) changed += 1;
+      });
+      saveState();
+      setMessage(dom.bindMessage, changed ? "good" : "warn", changed ? `已从 ${changed} 名学生移除未支付项目；已支付项目保持冻结。` : "所选学生未关联可移除的未支付项目。");
+      renderDashboardRelated();
+      renderStatusTable();
     }
     function clearStudentBindings() {
       const students = state.students.filter((student) => selectedStudentIds.has(student.id));
       if (!students.length) {
-        setMessage(dom.bindMessage, "warn", "请先选择要清空关联的学生。");
+        setMessage(dom.bindMessage, "warn", "请先选择要清空全部项目的学生。");
         return;
       }
+      let changed = 0;
       students.forEach((student) => {
-        student.feeIds = [];
+        const paidIds = paidFeeIds(student.id);
+        const nextIds = currentFeeIds(student).filter((id) => paidIds.includes(id));
+        if (nextIds.length !== currentFeeIds(student).length) changed += 1;
+        student.feeIds = nextIds;
       });
       saveState();
-      setMessage(dom.bindMessage, "good", `已清空 ${students.length} 名学生的已关联项目。`);
+      setMessage(dom.bindMessage, changed ? "good" : "warn", changed ? `已清空 ${students.length} 名学生的未支付关联项目；已支付项目保持冻结。` : "所选学生没有可清空的未支付项目。");
       renderDashboardRelated();
       renderStatusTable();
     }
@@ -887,10 +1044,16 @@
     dom.importBtn2.addEventListener("click", simulateImport);
     dom.resetBtn.addEventListener("click", resetDemo);
     dom.addStudentBtn.addEventListener("click", addStudent);
+    dom.addFeeBtn.addEventListener("click", addFeeItem);
     dom.bindBtn.addEventListener("click", bindSelectedFees);
-    dom.clearBindBtn.addEventListener("click", clearStudentBindings);
+    dom.removeSelectedFeesBtn.addEventListener("click", removeSelectedFeesFromStudents);
+    dom.clearAllBindingsBtn.addEventListener("click", clearStudentBindings);
     dom.clearSelectBtn.addEventListener("click", clearSelection);
     dom.selectAllBtn.addEventListener("click", selectAllStudents);
+    dom.classFilterSelect.addEventListener("change", (event) => {
+      classFilter = event.target.value;
+      renderStudentPickList(true);
+    });
     dom.appendModeBtn.addEventListener("click", () => {
       bindMode = "append";
       renderBindMode();

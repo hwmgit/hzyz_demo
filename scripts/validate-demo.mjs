@@ -64,6 +64,8 @@ includesAll(parentHtml, [
   "function enableAnalytics()",
   "state.students",
   "eduFeeDemoState",
+  "paidSnapshot",
+  "新增待补缴项目",
   "身份信息不匹配",
   "未找到该学生缴费信息",
   "聚合支付演示通道"
@@ -74,6 +76,10 @@ includesAll(adminHtml, [
   "function renderDashboardRelated()",
   "function bindSelectedFees()",
   "function clearStudentBindings()",
+  "function addFeeItem()",
+  "function filteredStudents()",
+  "paidSnapshot",
+  "已支付后新增待补缴",
   "index.html",
   "eduFeeDemoState",
   "学生A",
@@ -81,8 +87,10 @@ includesAll(adminHtml, [
   "打开家长端缴费页",
   "追加关联",
   "覆盖关联",
-  "清空已关联项目",
-  "bindMode === \"append\" ? new Set(student.feeIds || []) : new Set()",
+  "新增收费项目",
+  "移除勾选项目",
+  "清空所选学生全部项目",
+  "currentFeeIds(student)",
   "generateQrBtn",
   "renderQrCode",
   "vendor/qrcode.js"
@@ -91,8 +99,17 @@ includesAll(adminHtml, [
 includesAll(adminHtml, [
   "二维码生成",
   "label for=\"deployUrl\"",
+  "label for=\"classFilterSelect\"",
+  "label for=\"newFeeName\"",
+  "id=\"feeMessage\"",
   "const url = dom.deployUrl.value.trim()",
-  "请先填写家长端 URL"
+  "请先填写家长端 URL",
+  "请完整填写项目名称、适用周期和大于等于 0 的金额。",
+  "已支付后新增待补缴",
+  "专升本考前班",
+  "成人高考高起专班",
+  "职业资格提升班",
+  "开放教育本科班"
 ], "admin.html");
 
 assert(!parentHtml.includes("管理后台") && !parentHtml.includes("后台导入") && !parentHtml.includes("学生数据管理"), "扫码落地页 index.html 不应展示后台模块");
@@ -100,6 +117,7 @@ assert(!parentHtml.includes("language") && !parentHtml.includes("i18n") && !pare
 assert(!adminHtml.includes("language") && !adminHtml.includes("i18n") && !adminHtml.includes("中英切换"), "后台页面不应包含语言切换能力");
 assert(!parentHtml.includes("扫码模拟入口") && !adminHtml.includes("扫码模拟入口"), "页面不应包含扫码模拟入口文案");
 assert(!parentHtml.includes("登科") && !adminHtml.includes("登科") && !requirements.includes("登科") && !design.includes("登科") && !agents.includes("登科"), "页面与文档不应包含品牌词登科");
+assert(!adminHtml.includes("清空已关联项目"), "后台不应继续使用含歧义的清空已关联项目文案");
 assert(parentHtml.includes("productionDomain") && parentHtml.includes("websiteId") && parentHtml.includes("scriptUrl"), "缺少生产统计门禁配置");
 
 includesAll(agents, [
